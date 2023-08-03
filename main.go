@@ -3,12 +3,27 @@
 package main
 
 import (
+	"os"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/gocx/tinyDouyin/biz/repository"
 )
 
 func main() {
+	if err := Init(); err != nil {
+		os.Exit(-1)
+	}
+
 	h := server.Default()
 
 	register(h)
 	h.Spin()
+}
+
+func Init() error {
+	if err := repository.Init(); err != nil {
+		return err
+	}
+
+	return nil
 }

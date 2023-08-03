@@ -20,7 +20,7 @@ var identityKey = "id"
 
 // User demo
 type User struct {
-	UserId    int
+	UserId    int64
 	UserName  string
 	FirstName string
 	LastName  string
@@ -29,14 +29,17 @@ type User struct {
 func authMidwareInit() *jwt.HertzJWTMiddleware {
 	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
-		Realm:       "test zone",
-		Key:         []byte("secret key"),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
-		IdentityKey: identityKey,
+		Realm:            "test zone",
+		Key:              []byte("secret key"),
+		SigningAlgorithm: "HS256",
+		Timeout:          time.Hour,
+		MaxRefresh:       time.Hour,
+		IdentityKey:      identityKey,
+		TokenLookup:      "query: token",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
+
 					identityKey: v.UserId,
 				}
 			}
@@ -49,30 +52,58 @@ func authMidwareInit() *jwt.HertzJWTMiddleware {
 			}
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			handler.Login(ctx, c)
-			var loginVals login
-			if err := c.BindAndValidate(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-			userID := loginVals.Username
-			password := loginVals.Password
+			var user_id int64
+			if _, exsit := c.Get("type"); !exsit {
+				// login logic
+				// var loginVals login
+				// if err := c.BindAndValidate(&loginVals); err != nil {
+				// 	return "", jwt.ErrMissingLoginValues
+				// }
+				// userID := loginVals.Username
+				// password := loginVals.Password
 
-			// TODO(gcx): 数据库里查密码是否正确/用户是否存在
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &User{
-					UserId: 0,
-				}, nil
+				handler.Login(ctx, c)
 			}
+			uid_inter, _ := c.Get("user_id")
+			user_id, _ = uid_inter.(int64)
+			// if _, sta_msg_exsit := c.Get("status_msg"); sta_msg_exsit {
+			// 	return nil, jwt.ErrFailedAuthentication
+			// }
 
-			return nil, jwt.ErrFailedAuthentication
+			return &User{
+				UserId: user_id,
+			}, nil
 		},
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			uid, _ := c.Get("user_id")
+			status_msg, sta_msg_exsit := c.Get("status_msg")
+
+			if _, exsit := c.Get("type"); exsit {
+				// register logic
+				if !sta_msg_exsit {
+					c.Set("status_msg", "Register successfully")
+				} else {
+					c.JSON(http.StatusOK, map[string]interface{}{
+						"status_msg": status_msg,
+					})
+					return
+				}
+			} else {
+				// login logic
+				if !sta_msg_exsit {
+					c.Set("status_msg", "Login successfully")
+				} else {
+					c.JSON(http.StatusOK, map[string]interface{}{
+						"status_msg": status_msg,
+					})
+					return
+				}
+			}
+			status_msg, _ = c.Get("status_msg")
 			c.JSON(http.StatusOK, map[string]interface{}{
-				"status_msg": "login sucessfully",
+				"status_msg": status_msg,
 				"user_id":    uid,
 				"token":      token,
-				// "expire": expire.Format(time.RFC3339),
 			})
 		},
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
@@ -96,7 +127,6 @@ func authMidwareInit() *jwt.HertzJWTMiddleware {
 	// When you use jwt.New(), the function is already automatically called for checking,
 	// which means you don't need to call it again.
 	errInit := authMiddleware.MiddlewareInit()
-
 	if errInit != nil {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 	}

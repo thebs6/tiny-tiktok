@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"sync/atomic"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/gocx/tinyDouyin/biz/service"
@@ -25,7 +25,6 @@ var usersLoginInfo = map[string]User{
 var userIdSequence = int64(1)
 
 type UserLoginResponse struct {
-	StatusCode:int
 	Response
 	UserId int64  `json:"user_id,omitempty"`
 	Token  string `json:"token"`
@@ -40,57 +39,57 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	username := c.Query("username")
 	password := c.Query("password")
 
-	if _, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 1, StatusMsg: "User already exist"},
-		})
+	user_id, err := service.Register(username, password)
+
+	if err != nil {
+		// c.JSON(http.StatusOK, UserLoginResponse{
+		// 	Response: Response{
+		// 		StatusCode: 1,
+		// 		StatusMsg:  err.Error()},
+		// })
+		c.Set("status_msg", err.Error())
 	} else {
-		atomic.AddInt64(&userIdSequence, 1)
-		newUser := User{
-			Id:   userIdSequence,
-			Name: username,
-		}
-		usersLoginInfo[token] = newUser
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 0},
-			UserId:   userIdSequence,
-			Token:    username + password,
-		})
+		// c.JSON(http.StatusOK, UserLoginResponse{
+		// 	Response: Response{
+		// 		StatusCode: 0,
+		// 		StatusMsg:  "Register success"},
+		// 	UserId: user_id,
+		// })
+		c.Set("user_id", user_id)
 	}
 }
 
-func Login(ctx context.Context, c *app.RequestContext) int64 {
+func Login(ctx context.Context, c *app.RequestContext) {
+	fmt.Println("handler login1")
 	username := c.Query("username")
 	password := c.Query("password")
-	// if user, exist := usersLoginInfo[token]; exist {
-	// 	c.JSON(http.StatusOK, UserLoginResponse{
-	// 		Response: Response{StatusCode: 0},
-	// 		UserId:   user.Id,
-	// 		Token:    token,
-	// 	})
-	// } else {
-	// 	c.JSON(http.StatusOK, UserLoginResponse{
-	// 		Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
-	// 	})
-	// }
-	user, err := service.Login(username, password)
-	if err != nil {
 
+	user_id, err := service.Login(username, password)
+	if err != nil {
+		// c.JSON(http.StatusOK, UserLoginResponse{
+		// 	UserId: -1,
+		// })
+		c.Set("status_msg", err.Error())
+	} else {
+		// c.JSON(http.StatusOK, UserLoginResponse{
+		// 	UserId: user_id,
+		// })
+		// return user_id, ni
+		c.Set("user_id", user_id)
 	}
-	return user.Uid
+	fmt.Println("handler login2")
 }
 
 func UserInfo(ctx context.Context, c *app.RequestContext) {
-	token := c.Query("token")
 
-	if user, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{StatusCode: 0},
-			User:     user,
-		})
-	} else {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
-		})
-	}
+	// if  {
+	// 	c.JSON(http.StatusOK, UserResponse{
+	// 		Response: Response{StatusCode: 0},
+	// 		User:     user,
+	// 	})
+	// } else {
+	c.JSON(http.StatusOK, UserResponse{
+		Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
+	})
+	// }
 }

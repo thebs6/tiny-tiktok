@@ -3,6 +3,8 @@
 package main
 
 import (
+	"context"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/gocx/tinyDouyin/biz/handler"
 )
@@ -21,7 +23,11 @@ func register(h *server.Hertz) {
 	// basic apis
 	auth.GET("/feed/", handler.Feed)
 	auth.GET("/user/", handler.UserInfo)
-	noauth.POST("/user/register/", handler.Register)
+	noauth.POST("/user/register/", func (ctx context.Context, c *app.RequestContext) {
+		handler.Register(ctx , c)
+		c.Set("type", "register")
+		authMidware.LoginHandler(ctx , c)
+	})
 	noauth.POST("/user/login/", authMidware.LoginHandler)
 	auth.POST("/publish/action/", handler.Publish)
 	auth.GET("/publish/list/", handler.PublishList)

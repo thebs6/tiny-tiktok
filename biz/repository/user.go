@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -8,7 +10,7 @@ import (
 )
 
 type User struct {
-	UserId     int64     `gorm:"column:user_id"`
+	UserId     int64     `gorm:"column:uid"`
 	Name       string    `gorm:"column:name"`
 	Password   string    `gorm:"column:password"`
 	Avatar     string    `gorm:"column:avatar"`
@@ -35,28 +37,36 @@ func NewUserDaoInstance() *UserDao {
 }
 
 func (*UserDao) QueryUserById(uid int64) (*User, error) {
-	var user User
-	err := db.Where("uid = ?", uid).Find(&user).Error
+	// var user User
+	user := &User{}
+	err := db.Where("uid = ?", uid).First(user).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	if err != nil {
 		// util.Logger.Error("find user by id err:" + err.Error())
-		return nil, err
+		return nil, fmt.Errorf("repo: %v", err)
 	}
-	return &user, nil
+	return user, nil
 }
 
 func (*UserDao) QueryUserByName(name string) (*User, error) {
-	var user User
-	err := db.Where("name = ?", name).Find(&user).Error
-	if err == gorm.ErrRecordNotFound {
+	user := &User{}
+	err := db.Where("name = ?", name).First(user).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
 		// util.Logger.Error("batch find user by id err:" + err.Error())
-		return nil, err
+		return nil, fmt.Errorf("repo: %v", err)
 	}
+	return user, nil
+}
 
-	return &user, nil
+func (*UserDao) CreateNewUser(user *User) error {
+	if err := db.Create(user).Error; err != nil {
+		return fmt.Errorf("repo: %v", err)
+	}
+	return nil
 }
