@@ -1,10 +1,11 @@
-module github.com/gocx/tinyDouyin
+module github.com/justGoRun/tinyTiktok
 
 go 1.20
 
 require (
 	github.com/cloudwego/hertz v0.6.6
 	github.com/hertz-contrib/jwt v1.0.2
+	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.2
 )
@@ -31,5 +32,4 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
 )

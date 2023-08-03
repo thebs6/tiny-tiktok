@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gocx/tinyDouyin/biz/repository"
+	"github.com/justGoRun/tinyTiktok/biz/repository"
 )
 
 func Register(name, password string) (int64, error) {

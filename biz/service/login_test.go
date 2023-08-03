@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gocx/tinyDouyin/biz/repository"
+	"github.com/justGoRun/tinyTiktok/biz/repository"
 )
 
 func TestMain(m *testing.M) {

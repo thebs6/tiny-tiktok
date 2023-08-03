@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/gocx/tinyDouyin/biz/repository"
+	"github.com/justGoRun/tinyTiktok/biz/repository"
 )
 
 func main() {

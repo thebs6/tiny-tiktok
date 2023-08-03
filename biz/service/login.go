@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 
-	"github.com/gocx/tinyDouyin/biz/repository"
+	"github.com/justGoRun/tinyTiktok/biz/repository"
 )
 
 func Login(name, password string) (int64, error) {
