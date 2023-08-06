@@ -2,7 +2,6 @@ package douyin_core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -52,7 +51,6 @@ func authMidwareInit() *jwt.HertzJWTMiddleware {
 			}
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			fmt.Printf("jwt userid")
 			var user_id int64
 			if _, exsit := c.Get("type"); !exsit {
 				// login logic

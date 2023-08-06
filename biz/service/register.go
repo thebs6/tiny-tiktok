@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"fmt"
+	"sync"
 	"time"
 
 	"github.com/justGoRun/tinyTiktok/biz/repository"
@@ -22,6 +22,7 @@ type RegisterFlow struct {
 	name     string
 	password string
 	userId   int64
+	nameMu   sync.Mutex
 }
 
 func (f *RegisterFlow) Do() (int64, error) {
@@ -36,14 +37,17 @@ func (f *RegisterFlow) Do() (int64, error) {
 
 func (f *RegisterFlow) checkParam() error {
 	if len(f.password) < 5 {
-		fmt.Printf("%s %d\n", f.password, len(f.password))
 		return errors.New("this password is too short")
 	}
 
+	f.nameMu.Lock()
 	user, err := repository.NewUserDaoInstance().QueryUserByName(f.name)
+	f.nameMu.Unlock()
+
 	if user != nil {
 		return errors.New("this user name has been used")
 	}
+
 	return err
 }
 
