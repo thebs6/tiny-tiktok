@@ -1,0 +1,14 @@
+syntax = "v1"
+
+import "../user.api"
+
+type UserInfoReq {
+	Token  string `form:"token"`   // 用户鉴权token
+	UserID string `form:"user_id"` // 用户id
+}
+
+type UserInfoResp {
+	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
+	User       User   `json:"user"`                // 用户信息
+}

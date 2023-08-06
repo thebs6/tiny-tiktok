@@ -1,0 +1,14 @@
+syntax = "v1"
+
+import "message.api"
+
+type MessageChatReq {
+	ToUserID string `form:"to_user_id"` // 对方用户id
+	Token    string `form:"token"`      // 用户鉴权token
+}
+
+type MessageChatResp {
+	MessageList []Message `json:"message_list"`        // 用户列表
+	StatusCode  string    `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusMsg   string    `json:"status_msg,optional"` // 返回状态描述
+}

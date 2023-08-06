@@ -1,0 +1,14 @@
+syntax = "v1"
+
+import "comment.api"
+
+type CommentListReq {
+	Token   string `form:"token"`    // 用户鉴权token
+	VideoID string `form:"video_id"` // 视频id
+}
+
+type CommentListResp {
+	CommentList []Comment `json:"comment_list"`         // 评论列表
+	StatusCode  int64     `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusMsg   string    `json:"status_msg"`           // 返回状态描述
+}

@@ -1,0 +1,20 @@
+syntax = "v1"
+
+import "../user.api"
+
+type FriendUser {
+	User    User   `json:"user"`
+	Message string `json:"message,optional"`
+	MsgTyep int    `json:"msg_type"`
+}
+
+type RelationFollowListReq {
+	Token  string `form:"token"`   // 用户鉴权token
+	UserID string `form:"user_id"` // 用户id
+}
+
+type RelationFollowListResp {
+	StatusCode string       `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusMsg  string       `json:"status_msg,optional"` // 返回状态描述
+	UserList   []FriendUser `json:"user_list"`           // 用户信息列表
+}

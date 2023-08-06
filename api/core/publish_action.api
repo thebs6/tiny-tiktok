@@ -1,0 +1,12 @@
+syntax = "v1"
+
+type PublishActionReq {
+	Token string `form:"token,omitempty"` // 用户登录状态下设置
+	Data  []byte `form:"data"`
+	Title string `form:"title"`
+}
+
+type PublishActionResp {
+	StatusCode int64  `json:"status_code"`
+	StatusMsg  string `json:"status_msg,optional"`
+}

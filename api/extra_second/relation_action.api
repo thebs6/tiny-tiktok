@@ -1,0 +1,12 @@
+syntax = "v1"
+
+type RelationActionReq {
+	ActionType string `form:"action_type"` // 1-关注，2-取消关注
+	ToUserID   string `form:"to_user_id"`  // 对方用户id
+	Token      string `form:"token"`       // 用户鉴权token
+}
+
+type RelationActionResp {
+	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
+}

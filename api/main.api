@@ -1,0 +1,86 @@
+syntax = "v1"
+
+import "./core/feed.api"
+import "./core/login.api"
+import "./core/register.api"
+import "./core/userinfo.api"
+import "./core/publish_action.api"
+import "./core/publish_list.api"
+
+import "./extra_first/favorite_action.api"
+import "./extra_first/favorite_list.api"
+import "./extra_first/comment_action.api"
+import "./extra_first/comment_list.api"
+
+import "./extra_second/relation_action.api"
+import "./extra_second/relation_follow_list.api"
+import "./extra_second/relation_follower_list.api"
+import "./extra_second/relation_friend_list.api"
+import "./extra_second/message_action.api"
+import "./extra_second/message_chat.api"
+
+@server (
+	prefix: /douyin
+	group:  core
+)
+service service {
+	@handler Feed
+	get /feed (FeedReq) returns (FeedResp)
+
+	@handler Register
+	post /user/register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /user/login (LoginReq) returns (LoginResp)
+
+	@handler UserInfo
+	get /user (UserInfoReq) returns (UserInfoResp)
+
+	@handler PublishAction
+	post /publish/action (PublishActionReq) returns (PublishActionResp)
+
+	@handler PublishList
+	post /publish/list (PublishListReq) returns (PublishListResp)
+}
+
+@server (
+	prefix: /douyin
+	group:  extra_first
+)
+service service {
+	@handler FavoriteAction
+	get /favorite/action (FavoriteActionReq) returns (FavoriteActionResp)
+
+	@handler FavoriteList
+	get /favorite/list (FavoriteListReq) returns (FavoriteListResp)
+
+	@handler CommentAction
+	get /comment/action (CommentActionReq) returns (CommentActionResp)
+
+	@handler CommentList
+	get /comment/list (CommentListReq) returns (CommentListResp)
+}
+
+@server (
+	prefix: /douyin
+	group:  extra_second
+)
+service service {
+	@handler RelationAction
+	post /relation/action (RelationActionReq) returns (RelationFollowListResp)
+
+	@handler RelationFollowList
+	get /relation/follow/list (RelationFollowListReq) returns (RelationFollowListResp)
+
+	@handler RelationFollowerList
+	get /relation/follower/list (RelationFollowerListReq) returns (RelationFollowerListResp)
+
+	@handler RelationFriendList
+	get /relation/friend/list (RelationFriendListReq) returns (RelationFriendListResp)
+
+	@handler MessageAction
+	post /message/action (MessageActionReq) returns (MessageActionResp)
+
+	@handler MessageChat
+	get /message/chat (MessageChatReq) returns (MessageChatResp)
+}

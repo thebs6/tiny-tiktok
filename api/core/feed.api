@@ -1,0 +1,15 @@
+syntax = "v1"
+
+import "../video.api"
+
+type FeedReq {
+	LatestTime string `form:"latest_time,optional"` // 可选参数，限制返回视频的最新投稿时间戳，精确到秒，不填表示当前时间
+	Token      string `form:"token,optional"`       // 用户登录状态下设置
+}
+
+type FeedResp {
+	NextTime   int64   `json:"next_time"`            // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
+	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
+	VideoList  []Video `json:"video_list,optional"`  // 视频列表
+}
