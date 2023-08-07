@@ -139,8 +139,8 @@ type Comment struct {
 }
 
 type CommentListReq struct {
-	Token   string `form:"token"`    // 用户鉴权token
-	VideoID string `form:"video_id"` // 视频id
+	Token   string `form:"token,optional"` // 用户鉴权token
+	VideoID string `form:"video_id"`       // 视频id
 }
 
 type CommentListResp struct {

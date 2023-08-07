@@ -32,7 +32,14 @@ service service {
 
 	@handler Login
 	post /user/login (LoginReq) returns (LoginResp)
+}
 
+@server (
+	prefix: /douyin
+	jwt:	Auth
+	group:  core
+)
+service service {
 	@handler UserInfo
 	get /user (UserInfoReq) returns (UserInfoResp)
 
@@ -45,6 +52,7 @@ service service {
 
 @server (
 	prefix: /douyin
+	jwt:	Auth
 	group:  extra_first
 )
 service service {
@@ -56,13 +64,20 @@ service service {
 
 	@handler CommentAction
 	get /comment/action (CommentActionReq) returns (CommentActionResp)
+}
 
+@server (
+	prefix: /douyin
+	group:  extra_first
+)
+service service {
 	@handler CommentList
 	get /comment/list (CommentListReq) returns (CommentListResp)
 }
 
 @server (
 	prefix: /douyin
+	jwt:	Auth
 	group:  extra_second
 )
 service service {

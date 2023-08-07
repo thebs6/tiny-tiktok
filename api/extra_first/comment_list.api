@@ -3,7 +3,7 @@ syntax = "v1"
 import "comment.api"
 
 type CommentListReq {
-	Token   string `form:"token"`    // 用户鉴权token
+	Token   string `form:"token,optional"`    // 用户鉴权token
 	VideoID string `form:"video_id"` // 视频id
 }
 
