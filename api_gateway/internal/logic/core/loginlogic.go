@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -42,7 +41,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		Username: req.Username,
 		Password: req.Password,
 	})
-	fmt.Println(req.Username, req.Password)
+	// fmt.Println(req.Username, req.Password)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -50,7 +49,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 
 	resp = &types.LoginResp{
 		StatusCode: http.StatusOK,
-		StatusMsg:  "login success",
+		StatusMsg:  respRpc.StatusMsg,
 		UserID:     respRpc.UserId,
 		Token:      "token",
 	}

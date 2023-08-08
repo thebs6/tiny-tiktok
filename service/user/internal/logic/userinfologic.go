@@ -22,24 +22,21 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
-
 	}
 }
 
 func (l *UserInfoLogic) UserInfo(in *user.UserInfoReq) (*user.UserInfoResp, error) {
 	// todo: add your logic here and delete this line
-	
-	user, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId);
+
+	resp, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
 
 	if err != nil && err != model.ErrNotFound {
 		return nil, errors.New("查询数据失败")
 	}
 
-	if user == nil {
+	if resp == nil {
 		return nil, errors.New("用户不存在")
 	}
 
-
-	return &user.UserInfoResp{
-	}, nil
+	return &user.UserInfoResp{}, nil
 }
