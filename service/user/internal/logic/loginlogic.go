@@ -2,13 +2,12 @@ package logic
 
 import (
 	"context"
-	"fmt"
 
+	"tiny-tiktok/service/user/internal/model"
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 )
 
 type LoginLogic struct {
@@ -27,22 +26,28 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 	resp, err := l.svcCtx.UserModel.FindOneByName(l.ctx, in.Username)
+	// resp, err := l.svcCtx.UserModel.FindOne(l.ctx, 2)
 	// resp := model.User{
 	// 	Id:       1,
 	// 	Username: "gao",
 	// }
 	// var err error = nil
 
-	fmt.Println(resp.Id, resp.Username, resp.Password)
 	switch err {
 	case nil:
+		if resp.Password != in.Password {
+			return &user.LoginResp{
+				StatusMsg: "Password is incorrect",
+				UserId:    -1,
+			}, nil
+		}
 		return &user.LoginResp{
-			StatusMsg: "login successfully",
+			StatusMsg: "Login successfully",
 			UserId:    resp.Id,
 		}, nil
-	case sqlc.ErrNotFound:
+	case model.ErrNotFound:
 		return &user.LoginResp{
-			StatusMsg: "the username does not exsit",
+			StatusMsg: "The username does not exsit",
 			UserId:    -1,
 		}, nil
 	default:

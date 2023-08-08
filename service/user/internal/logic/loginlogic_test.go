@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"flag"
-	"fmt"
 	"testing"
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
@@ -62,7 +61,6 @@ func TestLogin(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
-			fmt.Println(test.testName)
 			_, err := NewLoginLogic(ctx, svcCtx).Login(&user.LoginReq{
 				Username: test.args.username,
 				Password: test.args.password,

@@ -41,12 +41,25 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		Username: req.Username,
 		Password: req.Password,
 	})
-	// fmt.Println(req.Username, req.Password)
 	if err != nil {
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Login fail",
+			UserID:     respRpc.UserId,
+		}
 		log.Fatal(err)
+		err = nil
+		return
+	} else if respRpc.UserId == -1 {
+		// the username does not exsit or the password is incorrect
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  respRpc.StatusMsg,
+			UserID:     respRpc.UserId,
+		}
+		err = nil
 		return
 	}
-
 	resp = &types.LoginResp{
 		StatusCode: http.StatusOK,
 		StatusMsg:  respRpc.StatusMsg,
