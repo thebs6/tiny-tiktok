@@ -19,126 +19,126 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_CommentAction_FullMethodName = "/comment.UserService/CommentAction"
-	UserService_CommentList_FullMethodName   = "/comment.UserService/CommentList"
+	CommentService_CommentAction_FullMethodName = "/comment.CommentService/CommentAction"
+	CommentService_CommentList_FullMethodName   = "/comment.CommentService/CommentList"
 )
 
-// UserServiceClient is the client API for UserService service.
+// CommentServiceClient is the client API for CommentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
+type CommentServiceClient interface {
 	CommentAction(ctx context.Context, in *CommentActionReq, opts ...grpc.CallOption) (*CommentActionResp, error)
-	CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentActionResp, error)
+	CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error)
 }
 
-type userServiceClient struct {
+type commentServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
+func NewCommentServiceClient(cc grpc.ClientConnInterface) CommentServiceClient {
+	return &commentServiceClient{cc}
 }
 
-func (c *userServiceClient) CommentAction(ctx context.Context, in *CommentActionReq, opts ...grpc.CallOption) (*CommentActionResp, error) {
+func (c *commentServiceClient) CommentAction(ctx context.Context, in *CommentActionReq, opts ...grpc.CallOption) (*CommentActionResp, error) {
 	out := new(CommentActionResp)
-	err := c.cc.Invoke(ctx, UserService_CommentAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CommentService_CommentAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentActionResp, error) {
-	out := new(CommentActionResp)
-	err := c.cc.Invoke(ctx, UserService_CommentList_FullMethodName, in, out, opts...)
+func (c *commentServiceClient) CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error) {
+	out := new(CommentListResp)
+	err := c.cc.Invoke(ctx, CommentService_CommentList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
+// CommentServiceServer is the server API for CommentService service.
+// All implementations must embed UnimplementedCommentServiceServer
 // for forward compatibility
-type UserServiceServer interface {
+type CommentServiceServer interface {
 	CommentAction(context.Context, *CommentActionReq) (*CommentActionResp, error)
-	CommentList(context.Context, *CommentListReq) (*CommentActionResp, error)
-	mustEmbedUnimplementedUserServiceServer()
+	CommentList(context.Context, *CommentListReq) (*CommentListResp, error)
+	mustEmbedUnimplementedCommentServiceServer()
 }
 
-// UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
+// UnimplementedCommentServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedCommentServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) CommentAction(context.Context, *CommentActionReq) (*CommentActionResp, error) {
+func (UnimplementedCommentServiceServer) CommentAction(context.Context, *CommentActionReq) (*CommentActionResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommentAction not implemented")
 }
-func (UnimplementedUserServiceServer) CommentList(context.Context, *CommentListReq) (*CommentActionResp, error) {
+func (UnimplementedCommentServiceServer) CommentList(context.Context, *CommentListReq) (*CommentListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommentList not implemented")
 }
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
+func (UnimplementedCommentServiceServer) mustEmbedUnimplementedCommentServiceServer() {}
 
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
+// UnsafeCommentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CommentServiceServer will
 // result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
+type UnsafeCommentServiceServer interface {
+	mustEmbedUnimplementedCommentServiceServer()
 }
 
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	s.RegisterService(&UserService_ServiceDesc, srv)
+func RegisterCommentServiceServer(s grpc.ServiceRegistrar, srv CommentServiceServer) {
+	s.RegisterService(&CommentService_ServiceDesc, srv)
 }
 
-func _UserService_CommentAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CommentService_CommentAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CommentActionReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).CommentAction(ctx, in)
+		return srv.(CommentServiceServer).CommentAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_CommentAction_FullMethodName,
+		FullMethod: CommentService_CommentAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).CommentAction(ctx, req.(*CommentActionReq))
+		return srv.(CommentServiceServer).CommentAction(ctx, req.(*CommentActionReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_CommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CommentService_CommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CommentListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).CommentList(ctx, in)
+		return srv.(CommentServiceServer).CommentList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_CommentList_FullMethodName,
+		FullMethod: CommentService_CommentList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).CommentList(ctx, req.(*CommentListReq))
+		return srv.(CommentServiceServer).CommentList(ctx, req.(*CommentListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
+// CommentService_ServiceDesc is the grpc.ServiceDesc for CommentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "comment.UserService",
-	HandlerType: (*UserServiceServer)(nil),
+var CommentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "comment.CommentService",
+	HandlerType: (*CommentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CommentAction",
-			Handler:    _UserService_CommentAction_Handler,
+			Handler:    _CommentService_CommentAction_Handler,
 		},
 		{
 			MethodName: "CommentList",
-			Handler:    _UserService_CommentList_Handler,
+			Handler:    _CommentService_CommentList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

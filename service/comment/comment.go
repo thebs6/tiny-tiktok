@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		comment.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
+		comment.RegisterCommentServiceServer(grpcServer, server.NewCommentServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
