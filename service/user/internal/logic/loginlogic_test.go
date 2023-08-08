@@ -4,8 +4,11 @@ import (
 	"context"
 	"flag"
 	"testing"
+	"tiny-tiktok/service/user/internal/config"
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
+
+	"github.com/zeromicro/go-zero/core/conf"
 )
 
 // var db sqlx.SqlConn
@@ -15,12 +18,11 @@ var ctx = context.Background()
 var svcCtx *svc.ServiceContext
 
 func TestMain(m *testing.M) {
-	// flag.Parse()
-	// var c config.Config
-	// conf.MustLoad(*configFile, &c)
-	// svcCtx = svc.NewServiceContext(c)
-	// dsn := "thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=True&loc=Local"
-	// db = sqlx.NewMysql(dsn)
+	flag.Parse()
+	var c config.Config
+	conf.MustLoad(*configFile, &c)
+	svcCtx = svc.NewServiceContext(c)
+
 	m.Run()
 }
 func TestLogin(t *testing.T) {

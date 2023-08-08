@@ -2,13 +2,16 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/user/pb/user"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/zeromicro/go-zero/core/discov"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -45,7 +48,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		resp = &types.LoginResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Login fail",
-			UserID:     respRpc.UserId,
+			UserID:     respRpc.UserId, // is -1
 		}
 		log.Fatal(err)
 		err = nil
@@ -55,17 +58,49 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		resp = &types.LoginResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  respRpc.StatusMsg,
-			UserID:     respRpc.UserId,
+			UserID:     respRpc.UserId, // is -1
 		}
 		err = nil
 		return
 	}
+
+	secretKey := l.svcCtx.Config.Auth.AccessSecret
+	iat := time.Now().Unix() // maybe not word on Windows OS
+	seconds := l.svcCtx.Config.Auth.AccessExpire
+	payload := fmt.Sprintf("%d,%d", respRpc.UserId, req.Username)
+
+	token, err := getJwtToken(secretKey, iat, seconds, payload)
+	if err != nil {
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Login fail",
+			UserID:     respRpc.UserId, // is -1
+		}
+		log.Fatal(err)
+		err = nil
+		return
+	}
+
 	resp = &types.LoginResp{
 		StatusCode: http.StatusOK,
 		StatusMsg:  respRpc.StatusMsg,
 		UserID:     respRpc.UserId,
-		Token:      "token",
+		Token:      token,
 	}
 
 	return
+}
+
+// @secretKey: JWT 加解密密钥
+// @iat: 时间戳
+// @seconds: 过期时间，单位秒
+// @payload: 数据载体
+func getJwtToken(secretKey string, iat, seconds int64, payload string) (string, error) {
+	claims := make(jwt.MapClaims)
+	claims["exp"] = iat + seconds
+	claims["iat"] = iat
+	claims["payload"] = payload
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = claims
+	return token.SignedString([]byte(secretKey))
 }
