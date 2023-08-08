@@ -33,6 +33,7 @@ func TestLogin(t *testing.T) {
 	tests := []struct {
 		testName string
 		args     args
+		want     bool
 		wantErr  bool
 	}{
 		{
@@ -41,6 +42,7 @@ func TestLogin(t *testing.T) {
 				username: "gao",
 				password: "123456",
 			},
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -49,7 +51,8 @@ func TestLogin(t *testing.T) {
 				username: "Alex",
 				password: "123456",
 			},
-			wantErr: true,
+			want:    false,
+			wantErr: false,
 		},
 		{
 			testName: "existing name and wrong password",
@@ -57,17 +60,31 @@ func TestLogin(t *testing.T) {
 				username: "gao",
 				password: "wrong_password",
 			},
-			wantErr: true,
+			want:    false,
+			wantErr: false,
+		},
+		{
+			testName: "empty name",
+			args: args{
+				username: "",
+				password: "wrong_password",
+			},
+			want:    false,
+			wantErr: false,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
-			_, err := NewLoginLogic(ctx, svcCtx).Login(&user.LoginReq{
+			resp, err := NewLoginLogic(ctx, svcCtx).Login(&user.LoginReq{
 				Username: test.args.username,
 				Password: test.args.password,
 			})
 			if (err != nil) != test.wantErr {
+				t.Errorf("Login() error: %v, wantErr %v", err, test.wantErr)
+				return
+			}
+			if (resp.UserId != -1) != test.want {
 				t.Errorf("Login() error: %v, wantErr %v", err, test.wantErr)
 				return
 			}
