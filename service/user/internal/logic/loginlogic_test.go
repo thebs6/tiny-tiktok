@@ -85,7 +85,7 @@ func TestLogin(t *testing.T) {
 				return
 			}
 			if (resp.UserId != -1) != test.want {
-				t.Errorf("Login() error: %v, wantErr %v", err, test.wantErr)
+				t.Errorf("Login() error: want %v", test.want)
 				return
 			}
 		})
