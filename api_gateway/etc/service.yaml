@@ -1,3 +1,7 @@
 Name: service
 Host: 0.0.0.0
 Port: 8888
+
+Auth:
+  AccessSecret: "AccessSecret"
+  AccessExpire: 604800
