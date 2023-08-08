@@ -26,7 +26,7 @@ message CommentListReq {
 message CommentListResp {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
-  Comment comment_list = 3; // 评论列表
+  repeated Comment comment_list = 3; // 评论列表
 }
 
 message Comment {
