@@ -67,7 +67,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	secretKey := l.svcCtx.Config.Auth.AccessSecret
 	iat := time.Now().Unix() // maybe not word on Windows OS
 	seconds := l.svcCtx.Config.Auth.AccessExpire
-	payload := fmt.Sprintf("%d,%d", respRpc.UserId, req.Username)
+	payload := fmt.Sprintf("%d,%s", respRpc.UserId, req.Username)
 
 	token, err := getJwtToken(secretKey, iat, seconds, payload)
 	if err != nil {
