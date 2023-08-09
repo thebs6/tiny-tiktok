@@ -36,14 +36,14 @@ type (
 	}
 
 	Comment struct {
-		Id        int64     `db:"id"`
-		Video     int64     `db:"video"`
-		User      int64     `db:"user"`
-		CreatedAt time.Time `db:"created_at"`
-		UpdatedAt time.Time `db:"updated_at"`
-		DeletedAt time.Time `db:"deleted_at"`
-		Content   string    `db:"content"`
-		Date      time.Time `db:"date"`
+		Id        int64        `db:"id"`
+		VideoId   int64        `db:"video_id"`
+		UserId    int64        `db:"user_id"`
+		CreatedAt time.Time    `db:"created_at"`
+		UpdatedAt time.Time    `db:"updated_at"`
+		DeletedAt sql.NullTime `db:"deleted_at"`
+		Content   string       `db:"content"`
+		Date      sql.NullTime `db:"date"`
 	}
 )
 
@@ -83,13 +83,13 @@ func (m *defaultCommentModel) FindOne(ctx context.Context, id int64) (*Comment, 
 
 func (m *defaultCommentModel) Insert(ctx context.Context, data *Comment) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, commentRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Video, data.User, data.DeletedAt, data.Content, data.Date)
+	ret, err := m.conn.ExecCtx(ctx, query, data.VideoId, data.UserId, data.DeletedAt, data.Content, data.Date)
 	return ret, err
 }
 
 func (m *defaultCommentModel) Update(ctx context.Context, data *Comment) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, commentRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Video, data.User, data.DeletedAt, data.Content, data.Date, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.VideoId, data.UserId, data.DeletedAt, data.Content, data.Date, data.Id)
 	return err
 }
 

@@ -29,7 +29,7 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 		var comments []*comment.Comment
 		for _, respComment := range respComments {
 			// TODO(gcx): change to Microservice api
-			user := queryUserById(respComment.User)
+			user := queryUserById(respComment.UserId)
 
 			comments = append(comments, &comment.Comment{
 				Id:         respComment.Id,

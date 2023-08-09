@@ -28,8 +28,8 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 	if in.ActionType == 1 {
 		// publish a comment
 		data := model.Comment{
-			Video:   in.VideoId,
-			User:    in.UserId,
+			VideoId: in.VideoId,
+			UserId:  in.UserId,
 			Content: in.CommentText,
 		}
 		res, err := l.svcCtx.CommentModel.Insert(l.ctx, &data)
@@ -37,7 +37,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,
-			}, nil
+			}, err
 		}
 
 		id, err := res.LastInsertId()
@@ -45,7 +45,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,
-			}, nil
+			}, err
 		}
 
 		// TODO(gcx): change to Microservice api
@@ -60,7 +60,11 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		}, nil
 	} else {
 		// delete a comment
+		// TODO(gcx): whether we should judge the comment which is going to be deleted
+		// is publish by this user?
 		err := l.svcCtx.CommentModel.Delete(l.ctx, in.CommentId)
+
+		// Attention: error will not occur when the commentid does not exsit
 		if err != nil {
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to delete the comment",
