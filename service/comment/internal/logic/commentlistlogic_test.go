@@ -37,7 +37,7 @@ func TestCommentList(t *testing.T) {
 				VideoId: test.args.videoId,
 			})
 			if (err != nil) != test.wantErr {
-				t.Errorf("CommentAction() error: %v, wantErr %v", err, test.wantErr)
+				t.Errorf("CommentList() error: %v, wantErr %v", err, test.wantErr)
 				return
 			}
 		})

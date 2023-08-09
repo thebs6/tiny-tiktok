@@ -26,6 +26,8 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.CommentListResp, error) {
 	respComments, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
 	if err != nil {
+		return nil, err
+	} else {
 		var comments []*comment.Comment
 		for _, respComment := range respComments {
 			// TODO(gcx): change to Microservice api
@@ -39,12 +41,9 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 			})
 		}
 		return &comment.CommentListResp{
-			StatusMsg:   "Failed to get comment list",
+			StatusMsg:   "Get comment list succesfully",
 			CommentList: comments,
 		}, nil
-	} else {
-
-		return &comment.CommentListResp{}, nil
 	}
 }
 

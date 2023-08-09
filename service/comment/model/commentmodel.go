@@ -31,7 +31,7 @@ func NewCommentModel(conn sqlx.SqlConn) CommentModel {
 
 func (c *customCommentModel) List(ctx context.Context, vedioId int64) ([]*Comment, error) {
 	var comments []*Comment
-	query := fmt.Sprintf("select %s from %s where video = ?", commentRows, c.table)
+	query := fmt.Sprintf("select %s from %s where video_id = ?", commentRows, c.table)
 	err := c.conn.QueryRowsCtx(ctx, &comments, query, vedioId)
 	if err != nil {
 		return nil, err
