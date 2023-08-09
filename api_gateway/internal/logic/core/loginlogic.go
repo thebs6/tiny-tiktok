@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -67,7 +66,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	secretKey := l.svcCtx.Config.Auth.AccessSecret
 	iat := time.Now().Unix() // maybe not word on Windows OS
 	seconds := l.svcCtx.Config.Auth.AccessExpire
-	payload := fmt.Sprintf("%d,%s", respRpc.UserId, req.Username)
+	payload := respRpc.UserId
 
 	token, err := getJwtToken(secretKey, iat, seconds, payload)
 	if err != nil {
@@ -95,7 +94,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 // @iat: 时间戳
 // @seconds: 过期时间，单位秒
 // @payload: 数据载体
-func getJwtToken(secretKey string, iat, seconds int64, payload string) (string, error) {
+func getJwtToken(secretKey string, iat, seconds, payload int64) (string, error) {
 	claims := make(jwt.MapClaims)
 	claims["exp"] = iat + seconds
 	claims["iat"] = iat

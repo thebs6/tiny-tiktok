@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -66,8 +65,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 	secretKey := l.svcCtx.Config.Auth.AccessSecret
 	iat := time.Now().Unix() // maybe not word on Windows OS
 	seconds := l.svcCtx.Config.Auth.AccessExpire
-	payload := fmt.Sprintf("%d,%s", respRpc.UserId, req.Username)
-
+	payload := respRpc.UserId
 	token, err := getJwtToken(secretKey, iat, seconds, payload)
 	if err != nil {
 		resp = &types.RegisterResp{
