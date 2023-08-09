@@ -6,4 +6,4 @@ Etcd:
   Key: user.rpc
 
 DB:
-  DataSource: thebs:thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 
 	"tiny-tiktok/api_gateway/internal/config"
 	"tiny-tiktok/api_gateway/internal/handler"
@@ -20,7 +21,9 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
+		// 自定义处理返回
+	}))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
@@ -28,4 +31,5 @@ func main() {
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
+
 }

@@ -2,7 +2,9 @@ package logic
 
 import (
 	"context"
+	"regexp"
 
+	"tiny-tiktok/service/user/internal/model"
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
 
@@ -24,7 +26,30 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, error) {
-	// todo: add your logic here and delete this line
+	data := &model.User{
+		Username: in.Username,
+		Password: in.Password,
+	}
+	res, err := l.svcCtx.UserModel.Insert(l.ctx, data)
 
-	return &user.RegisterResp{}, nil
+	switch err {
+	case nil:
+		id, err := res.LastInsertId()
+		if err != nil {
+			return nil, err
+		}
+		return &user.RegisterResp{
+			StatusMsg: "Register successfully",
+			UserId:    id,
+		}, nil
+	default:
+		if match, _ := regexp.MatchString(".*(23000).*", err.Error()); match {
+			return &user.RegisterResp{
+				StatusMsg: "The username has been used",
+				UserId:    -1,
+			}, nil
+		}
+
+		return nil, err
+	}
 }
