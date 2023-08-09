@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 
 	"tiny-tiktok/service/comment/internal/svc"
 	"tiny-tiktok/service/comment/model"
@@ -66,10 +67,11 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 
 		// Attention: error will not occur when the commentid does not exsit
 		if err != nil {
+			fmt.Printf("error %s", err.Error())
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to delete the comment",
 				Comment:   nil,
-			}, nil
+			}, err
 		}
 
 		return &comment.CommentActionResp{

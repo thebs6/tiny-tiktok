@@ -31,29 +31,48 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq) (resp *t
 	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
 		Etcd: discov.EtcdConf{
 			Hosts: []string{"127.0.0.1:2379"},
-			Key:   "user.rpc",
+			Key:   "comment.rpc",
 		},
 	})
 	client := comment.NewCommentServiceClient(conn.Conn())
 
-	userid := l.ctx.Value("payload").(int64)
-
+	// userid := l.ctx.Value("payload").(int64)
 	respRpc, err := client.CommentAction(l.ctx, &comment.CommentActionReq{
-		UserId:      userid,
+		UserId:      1,
 		VideoId:     req.VideoID,
 		ActionType:  req.ActionType,
 		CommentText: req.CommentText,
+		CommentId:   req.CommentID,
 	})
-	return &types.CommentActionResp{
-		StatusCode: http.StatusOK,
-		StatusMsg:  respRpc.StatusMsg,
-		Comment: types.Comment{
-			ID: resp.Comment.ID,
-			User: types.User{
-				ID:   resp.Comment.User.ID,
-				Name: resp.Comment.User.Name,
+	if err != nil {
+		resp = &types.CommentActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "fail",
+		}
+		return
+	}
+	if req.ActionType == 1 {
+		// publish comment
+		resp = &types.CommentActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  respRpc.StatusMsg,
+			Comment: types.Comment{
+				ID: respRpc.Comment.Id,
+				User: types.User{
+					ID:   respRpc.Comment.User.Id,
+					Name: respRpc.Comment.User.Name,
+				},
+				Content: respRpc.Comment.Content,
 			},
-			Content: resp.Comment.Content,
-		},
-	}, err
+		}
+	} else {
+		// delete common
+		resp = &types.CommentActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  respRpc.StatusMsg,
+			Comment:    types.Comment{},
+		}
+	}
+
+	return
 }
