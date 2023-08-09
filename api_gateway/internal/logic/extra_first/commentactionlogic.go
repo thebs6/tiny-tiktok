@@ -62,7 +62,8 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq) (resp *t
 					ID:   respRpc.Comment.User.Id,
 					Name: respRpc.Comment.User.Name,
 				},
-				Content: respRpc.Comment.Content,
+				Content:    respRpc.Comment.Content,
+				CreateDate: respRpc.Comment.CreateDate,
 			},
 		}
 	} else {

@@ -35,7 +35,7 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 				Id:         respComment.Id,
 				User:       user,
 				Content:    respComment.Content,
-				CreateDate: respComment.CreatedAt.String(),
+				CreateDate: respComment.CreatedAt.Format("01-02"),
 			})
 		}
 		return &comment.CommentListResp{

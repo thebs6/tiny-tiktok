@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"tiny-tiktok/service/comment/internal/svc"
 	"tiny-tiktok/service/comment/model"
@@ -54,9 +55,10 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		return &comment.CommentActionResp{
 			StatusMsg: "Comment successfully",
 			Comment: &comment.Comment{
-				Id:      id,
-				User:    user,
-				Content: in.CommentText,
+				Id:         id,
+				User:       user,
+				Content:    in.CommentText,
+				CreateDate: time.Now().Format("01-02"),
 			},
 		}, nil
 	} else {
