@@ -2,7 +2,7 @@ package extra_first
 
 import (
 	"context"
-	"encoding/json"
+	"net/http"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
@@ -35,20 +35,25 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq) (resp *t
 		},
 	})
 	client := comment.NewCommentServiceClient(conn.Conn())
-	client.CommentAction(l.ctx, &comment.CommentActionReq{
-		UserId: req.,
-	})
-	return
-}
 
-func GetUidFromCtx(ctx context.Context) int64 {
-	var uid int64
-	if jsonUid, ok := ctx.Value(CtxKeyJwtUserId).(json.Number); ok {
-		if int64Uid, err := jsonUid.Int64(); err == nil {
-			uid = int64Uid
-		} else {
-			logx.WithContext(ctx).Errorf("GetUidFromCtx err : %+v", err)
-		}
-	}
-	return uid
+	userid := l.ctx.Value("payload").(int64)
+
+	respRpc, err := client.CommentAction(l.ctx, &comment.CommentActionReq{
+		UserId:      userid,
+		VideoId:     req.VideoID,
+		ActionType:  req.ActionType,
+		CommentText: req.CommentText,
+	})
+	return &types.CommentActionResp{
+		StatusCode: http.StatusOK,
+		StatusMsg:  respRpc.StatusMsg,
+		Comment: types.Comment{
+			ID: resp.Comment.ID,
+			User: types.User{
+				ID:   resp.Comment.User.ID,
+				Name: resp.Comment.User.Name,
+			},
+			Content: resp.Comment.Content,
+		},
+	}, err
 }
