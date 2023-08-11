@@ -7,4 +7,11 @@ type Config struct {
 	DB struct {
 		DataSource string
 	}
+	RedisConf struct {
+		Host string
+		Type string `json:",default=node,options=node|cluster"`
+		Pass string `json:",optional"`
+		Tls  bool   `json:",optional"`
+		DB   int
+	}
 }

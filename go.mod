@@ -3,6 +3,8 @@ module tiny-tiktok
 go 1.20
 
 require (
+	github.com/redis/go-redis/v9 v9.0.5
+	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	github.com/zeromicro/go-zero v1.5.4
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0

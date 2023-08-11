@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"tiny-tiktok/service/comment/internal/model"
 	"tiny-tiktok/service/comment/internal/svc"
-	"tiny-tiktok/service/comment/model"
 	"tiny-tiktok/service/comment/pb/comment"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type CommentActionLogic struct {
@@ -34,16 +35,29 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			UserId:  in.UserId,
 			Content: in.CommentText,
 		}
-		res, err := l.svcCtx.CommentModel.Insert(l.ctx, &data)
-		if err != nil {
-			return &comment.CommentActionResp{
-				StatusMsg: "Failed to comment",
-				Comment:   nil,
-			}, err
-		}
-
-		id, err := res.LastInsertId()
-		if err != nil {
+		var user_id int64
+		if err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+			res, err := l.svcCtx.CommentModel.Insert(l.ctx, &data)
+			if err != nil {
+				return err
+			}
+			user_id, err = res.LastInsertId()
+			if err != nil {
+				return err
+			}
+			// 1.inset into redis after successing to insert into mysql
+			// 2.the created_at is a little bit later than the created_at in mysql.
+			// "commentlist" api just response the month-day to the client so it does not matter at most time.
+			// However, if the comment is published at 23:59:59, the "commentlist" api maybe response the next day
+			data.CreatedAt = time.Now()
+			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), &data)
+			if err != nil {
+				// mysql rollback if failed to insert into redis
+				return err
+			}
+			return nil
+		}); err != nil {
+			// transaction fails
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,
@@ -55,7 +69,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		return &comment.CommentActionResp{
 			StatusMsg: "Comment successfully",
 			Comment: &comment.Comment{
-				Id:         id,
+				Id:         user_id,
 				User:       user,
 				Content:    in.CommentText,
 				CreateDate: time.Now().Format("01-02"),
@@ -64,7 +78,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 	} else {
 		// delete a comment
 		// TODO(gcx): whether we should judge the comment which is going to be deleted
-		// is publish by this user?
+		// is publish by the user who try to delete it?
 		err := l.svcCtx.CommentModel.Delete(l.ctx, in.CommentId)
 
 		// Attention: error will not occur when the commentid does not exsit
