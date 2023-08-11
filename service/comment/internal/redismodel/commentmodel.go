@@ -46,7 +46,8 @@ func (m *CommentModel) ZRevRangeWithScores(ctx context.Context, video_id int64) 
 	return resList, err
 }
 
-func (m *CommentModel) Del(ctx context.Context, video_id int64) {
+func (m *CommentModel) ZRem(ctx context.Context, video_id int64, comment *model.Comment) error {
 	key := m.keyPrefix + strconv.FormatInt(video_id, 10)
-	m.redcli.Del(ctx, key)
+	_, err := m.redcli.ZRem(ctx, key, comment).Result()
+	return err
 }

@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"tiny-tiktok/service/comment/internal/model"
@@ -30,34 +29,47 @@ func NewCommentActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Com
 func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comment.CommentActionResp, error) {
 	if in.ActionType == 1 {
 		// publish a comment
-		data := model.Comment{
+		data := &model.Comment{
 			VideoId: in.VideoId,
 			UserId:  in.UserId,
 			Content: in.CommentText,
 		}
-		var user_id int64
-		if err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-			res, err := l.svcCtx.CommentModel.Insert(l.ctx, &data)
+		var comment_id int64
+		err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+			res, err := l.svcCtx.CommentModel.Insert(l.ctx, data)
 			if err != nil {
 				return err
 			}
-			user_id, err = res.LastInsertId()
+			comment_id, err = res.LastInsertId()
 			if err != nil {
 				return err
 			}
-			// 1.inset into redis after successing to insert into mysql
-			// 2.the created_at is a little bit later than the created_at in mysql.
-			// "commentlist" api just response the month-day to the client so it does not matter at most time.
-			// However, if the comment is published at 23:59:59, the "commentlist" api maybe response the next day
-			data.CreatedAt = time.Now()
-			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), &data)
+
+			// // 1.Inset into redis after successing to insert into mysql
+			// // 2.The created_at is a little bit later than the created_at in mysql.
+			// // "commentlist" api just response the month-day to the client so it does not matter at most time.
+			// // However, if the comment is published at 23:59:59, the "commentlist" api maybe response the next day
+			// // Futhermore, this implementation will have us can not delete the record from the redis.
+			// data.CreatedAt = time.Now()
+			// err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
+
+			// To solve the problems which are led by the different time, we query mysql.
+			// Unluckly, this implementation will hurt the performance of our system
+			data, err = l.svcCtx.CommentModel.FindOne(l.ctx, comment_id)
+			if err != nil {
+				return err
+			}
+			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
+
 			if err != nil {
 				// mysql rollback if failed to insert into redis
 				return err
 			}
 			return nil
-		}); err != nil {
-			// transaction fails
+		})
+
+		// transaction fails
+		if err != nil {
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,
@@ -69,7 +81,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		return &comment.CommentActionResp{
 			StatusMsg: "Comment successfully",
 			Comment: &comment.Comment{
-				Id:         user_id,
+				Id:         comment_id,
 				User:       user,
 				Content:    in.CommentText,
 				CreateDate: time.Now().Format("01-02"),
@@ -79,11 +91,29 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		// delete a comment
 		// TODO(gcx): whether we should judge the comment which is going to be deleted
 		// is publish by the user who try to delete it?
-		err := l.svcCtx.CommentModel.Delete(l.ctx, in.CommentId)
 
-		// Attention: error will not occur when the commentid does not exsit
+		// get the comment from mysql and delete it from redis
+		resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
 		if err != nil {
-			fmt.Printf("error %s", err.Error())
+			return &comment.CommentActionResp{
+				StatusMsg: "Failed to delete the comment",
+				Comment:   nil,
+			}, err
+		}
+
+		err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
+		if err != nil {
+			return &comment.CommentActionResp{
+				StatusMsg: "Failed to delete the comment",
+				Comment:   nil,
+			}, err
+		}
+
+		// soft delete the record in mysql after deleting the record in redis
+		// or the record will be different from the one in redis
+		// and fail to delete the record in redis
+		err = l.svcCtx.CommentModel.SoftDel(l.ctx, in.CommentId)
+		if err != nil {
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to delete the comment",
 				Comment:   nil,

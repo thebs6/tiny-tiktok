@@ -2,7 +2,9 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/vmihailenco/msgpack"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -17,6 +19,7 @@ type (
 		commentModel
 		List(ctx context.Context, vedioId int64) ([]*Comment, error)
 		Trans(ctx context.Context, fn func(ctx context.Context, session sqlx.Session) error) error
+		SoftDel(ctx context.Context, comment_id int64) error
 	}
 
 	customCommentModel struct {
@@ -46,6 +49,12 @@ func (c *customCommentModel) Trans(ctx context.Context, fn func(ctx context.Cont
 	return c.conn.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
 		return fn(ctx, s)
 	})
+}
+
+func (m *defaultCommentModel) SoftDel(ctx context.Context, comment_id int64) error {
+	query := fmt.Sprintf("update %s set `deleted_at` = ? where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, sql.NullTime{Time: time.Now(), Valid: true}, comment_id)
+	return err
 }
 
 // for redis ZAdd
