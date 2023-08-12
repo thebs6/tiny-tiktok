@@ -36,10 +36,11 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		}
 		var comment_id int64
 		err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-			res, err := l.svcCtx.CommentModel.Insert(l.ctx, data)
+			res, err := l.svcCtx.CommentModel.TransInsert(l.ctx, session, data)
 			if err != nil {
 				return err
 			}
+
 			comment_id, err = res.LastInsertId()
 			if err != nil {
 				return err
@@ -55,16 +56,16 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 
 			// To solve the problems which are led by the different time, we query mysql.
 			// Unluckly, this implementation will hurt the performance of our system
-			data, err = l.svcCtx.CommentModel.FindOne(l.ctx, comment_id)
+			data, err = l.svcCtx.CommentModel.TransFindone(l.ctx, session, comment_id)
 			if err != nil {
 				return err
 			}
 			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
-
+			// mysql rollback if failed to insert into redis
 			if err != nil {
-				// mysql rollback if failed to insert into redis
 				return err
 			}
+
 			return nil
 		})
 
@@ -87,42 +88,42 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 				CreateDate: time.Now().Format("01-02"),
 			},
 		}, nil
-	} else {
-		// delete a comment
-		// TODO(gcx): whether we should judge the comment which is going to be deleted
-		// is publish by the user who try to delete it?
-
-		// get the comment from mysql and delete it from redis
-		resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
-		if err != nil {
-			return &comment.CommentActionResp{
-				StatusMsg: "Failed to delete the comment",
-				Comment:   nil,
-			}, err
-		}
-
-		err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
-		if err != nil {
-			return &comment.CommentActionResp{
-				StatusMsg: "Failed to delete the comment",
-				Comment:   nil,
-			}, err
-		}
-
-		// soft delete the record in mysql after deleting the record in redis
-		// or the record will be different from the one in redis
-		// and fail to delete the record in redis
-		err = l.svcCtx.CommentModel.SoftDel(l.ctx, in.CommentId)
-		if err != nil {
-			return &comment.CommentActionResp{
-				StatusMsg: "Failed to delete the comment",
-				Comment:   nil,
-			}, err
-		}
-
-		return &comment.CommentActionResp{
-			StatusMsg: "Delete the comment successfully",
-			Comment:   nil,
-		}, nil
 	}
+
+	// delete a comment
+	// TODO(gcx): whether we should judge the comment which is going to be deleted
+	// is publish by the user who try to delete it?
+
+	// get the comment from mysql and delete it from redis
+	resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
+	if err != nil {
+		return &comment.CommentActionResp{
+			StatusMsg: "Failed to delete the comment",
+			Comment:   nil,
+		}, err
+	}
+
+	err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
+	if err != nil {
+		return &comment.CommentActionResp{
+			StatusMsg: "Failed to delete the comment",
+			Comment:   nil,
+		}, err
+	}
+
+	// soft delete the record in mysql after deleting the record in redis
+	// or the record will be different from the one in redis
+	// and fail to delete the record in redis
+	err = l.svcCtx.CommentModel.SoftDel(l.ctx, in.CommentId)
+	if err != nil {
+		return &comment.CommentActionResp{
+			StatusMsg: "Failed to delete the comment",
+			Comment:   nil,
+		}, err
+	}
+
+	return &comment.CommentActionResp{
+		StatusMsg: "Delete the comment successfully",
+		Comment:   nil,
+	}, nil
 }

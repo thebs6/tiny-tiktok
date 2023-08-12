@@ -40,10 +40,14 @@ func (m *CommentModel) ZAdd(ctx context.Context, video_id int64, score int64, co
 	return err
 }
 
-func (m *CommentModel) ZRevRangeWithScores(ctx context.Context, video_id int64) ([]redis.Z, error) {
+// func (m *CommentModel) ZRevRangeWithScores(ctx context.Context, video_id int64) ([]redis.Z, error) {
+func (m *CommentModel) ZRevRangeWithScores(ctx context.Context, video_id int64) ([]model.Comment, error) {
 	key := m.keyPrefix + strconv.FormatInt(video_id, 10)
-	resList, err := m.redcli.ZRevRangeWithScores(ctx, key, 0, -1).Result()
-	return resList, err
+	// resList, err := m.redcli.ZRevRangeWithScores(ctx, key, 0, -1).Result()
+
+	var commentList []model.Comment
+	err := m.redcli.ZRevRange(ctx, key, 0, -1).ScanSlice(&commentList)
+	return commentList, err
 }
 
 func (m *CommentModel) ZRem(ctx context.Context, video_id int64, comment *model.Comment) error {
