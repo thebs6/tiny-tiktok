@@ -3,10 +3,10 @@ package model
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"time"
 
+	"github.com/vmihailenco/msgpack"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -82,13 +82,11 @@ func (m *defaultCommentModel) TransFindone(ctx context.Context, session sqlx.Ses
 
 // for redis ZAdd
 func (c *Comment) MarshalBinary() ([]byte, error) {
-	fmt.Println("MarshalBinary")
-	// return msgpack.Marshal(c)
-	return json.Marshal(c)
+	// fmt.Println("MarshalBinary")
+	return msgpack.Marshal(c)
 }
 
 func (c *Comment) UnmarshalBinary(data []byte) error {
-	fmt.Println("UnmarshalBinary")
-	// return msgpack.Unmarshal(data, c)
-	return json.Unmarshal(data, c)
+	// fmt.Println("UnmarshalBinary")
+	return msgpack.Unmarshal(data, c)
 }
