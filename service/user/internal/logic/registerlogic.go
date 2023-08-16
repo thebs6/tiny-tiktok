@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/base64"
 	"regexp"
 
 	"tiny-tiktok/service/user/internal/model"
@@ -9,6 +10,7 @@ import (
 	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"golang.org/x/crypto/scrypt"
 )
 
 type RegisterLogic struct {
@@ -26,9 +28,14 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, error) {
+	hash, err := scrypt.Key([]byte(in.Password), SALT, 1<<15, 8, 1, PW_HASH_BYTES)
+	if err != nil {
+		return nil, err
+	}
+	encodedHash := base64.StdEncoding.EncodeToString(hash)
 	data := &model.User{
 		Username: in.Username,
-		Password: in.Password,
+		Password: encodedHash,
 	}
 	res, err := l.svcCtx.UserModel.Insert(l.ctx, data)
 

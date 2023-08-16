@@ -48,7 +48,7 @@ func TestLogin(t *testing.T) {
 		{
 			testName: "not existing name",
 			args: args{
-				username: "Alex",
+				username: "Ben",
 				password: "123456",
 			},
 			want:    false,
