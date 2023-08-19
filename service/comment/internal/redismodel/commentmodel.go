@@ -24,9 +24,9 @@ func NewCommentModel(redcli *redis.Client) CommentModel {
 	}
 }
 
-func (m *CommentModel) Exists(ctx context.Context, video_id int64) int64 {
+func (m *CommentModel) Exists(ctx context.Context, video_id int64) (int64, error) {
 	key := m.keyPrefix + strconv.FormatInt(video_id, 10)
-	return m.redcli.Exists(ctx, key).Val()
+	return m.redcli.Exists(ctx, key).Result()
 }
 
 func (m *CommentModel) ZAdd(ctx context.Context, video_id int64, score int64, comment *model.Comment) error {

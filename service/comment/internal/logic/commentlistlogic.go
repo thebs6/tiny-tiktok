@@ -24,39 +24,43 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 }
 
 func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.CommentListResp, error) {
-	respComments, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
-	if err != nil {
-		return nil, err
-	} else {
-		userIdList := make([]int64, len(respComments))
-		for i, respComment := range respComments {
+	var comments []*comment.Comment
+	exist, err := l.svcCtx.CommentRedis.Exists(l.ctx, in.VideoId)
+	if exist == 1 {
+		commentList, err := l.svcCtx.CommentRedis.ZRevRangeWithScores(l.ctx, in.VideoId)
+		if err != nil {
+			return nil, err
+		}
+
+		userIdList := make([]int64, len(commentList))
+		for i, respComment := range commentList {
 			userIdList[i] = respComment.UserId
 		}
-		userList := make([]*comment.User, len(respComments))
+		userList := make([]*comment.User, len(commentList))
 		// TODO(gcx): change to Microservice api
 		queryUsersByIds(userIdList, userList)
 
-		var comments []*comment.Comment
-		for i, respComment := range respComments {
-			// TODO(gcx): change to Microservice api(drop)
-			// user := queryUserById(respComment.UserId)
-
+		for i, c := range commentList {
+			// TODO(gcx): change to Microservice api
+			// user := queryUserById(c.UserId)
 			comments = append(comments, &comment.Comment{
-				Id: respComment.Id,
+				Id: c.Id,
 				// User:       user,
 				User:       userList[i],
-				Content:    respComment.Content,
-				CreateDate: respComment.CreatedAt.Format("01-02"),
+				Content:    c.Content,
+				CreateDate: c.CreatedAt.Format("01-02"),
 			})
 		}
-
 		return &comment.CommentListResp{
 			StatusMsg:   "Get comment list succesfully",
 			CommentList: comments,
 		}, nil
 	}
-	// If the record does not exsit in redis, query mysql
-	// Should we query mysql?
+	if err != nil {
+		return nil, err
+	}
+
+	// Should we query mysql if the record does not exsit in redis, query mysql?
 	// respComments, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
 	// if err != nil {
 	// 	return nil, err
@@ -73,11 +77,11 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 	// 		CreateDate: respComment.CreatedAt.Format("01-02"),
 	// 	})
 	// }
-	// return &comment.CommentListResp{
-	// 	StatusMsg:   "Get comment list succesfully",
-	// 	CommentList: comments,
-	// }, nil
 
+	return &comment.CommentListResp{
+		StatusMsg:   "Get comment list succesfully",
+		CommentList: comments,
+	}, nil
 }
 
 // stub code

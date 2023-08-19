@@ -7,10 +7,10 @@ type Config struct {
 	DB struct {
 		DataSource string
 	}
-	LOG struct {
-		ServiceName string
-		Mode        string
-	}
+	// LOG struct {
+	// 	ServiceName string
+	// 	Mode        string
+	// }
 	RedisConf struct {
 		Host string
 		Type string `json:",default=node,options=node|cluster"`
