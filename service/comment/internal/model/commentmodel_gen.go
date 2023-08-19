@@ -36,14 +36,14 @@ type (
 	}
 
 	Comment struct {
-		Id        int64        `db:"id"`
-		VideoId   int64        `db:"video_id"`
-		UserId    int64        `db:"user_id"`
-		CreatedAt time.Time    `db:"created_at"`
-		UpdatedAt time.Time    `db:"updated_at"`
-		DeletedAt sql.NullTime `db:"deleted_at"`
-		Content   string       `db:"content"`
-		Date      sql.NullTime `db:"date"`
+		Id        int64        `json:"id" db:"id"`
+		VideoId   int64        `json:"video_id" db:"video_id"`
+		UserId    int64        `json:"user_id" db:"user_id"`
+		CreatedAt time.Time    `json:"created_at" db:"created_at"`
+		UpdatedAt time.Time    `json:"updated_at" db:"updated_at"`
+		DeletedAt sql.NullTime `json:"deleted_at" db:"deleted_at"`
+		Content   string       `json:"content" db:"content"`
+		Date      sql.NullTime `json:"date" db:"date"`
 	}
 )
 

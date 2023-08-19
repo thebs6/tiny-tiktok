@@ -39,7 +39,7 @@ func TestCommentAction(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			testName: "valid comment",
+			testName: "valid comment1",
 			args: args{
 				userId:      1,
 				videoId:     1,
@@ -50,9 +50,9 @@ func TestCommentAction(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			testName: "valid comment",
+			testName: "valid comment2",
 			args: args{
-				userId:      1,
+				userId:      2,
 				videoId:     1,
 				actionType:  1,
 				commentText: "comment test2",
@@ -60,28 +60,17 @@ func TestCommentAction(t *testing.T) {
 			wantAct: "Comment successfully",
 			wantErr: false,
 		},
-		{
-			testName: "valid comment",
-			args: args{
-				userId:      1,
-				videoId:     1,
-				actionType:  1,
-				commentText: "comment test3",
-			},
-			wantAct: "Comment successfully",
-			wantErr: false,
-		},
-		{
-			testName: "valid comment deletion",
-			args: args{
-				userId:     1,
-				videoId:    1,
-				actionType: 2,
-				commentId:  1,
-			},
-			wantAct: "Delete the comment successfully",
-			wantErr: false,
-		},
+		// {
+		// 	testName: "valid comment3",
+		// 	args: args{
+		// 		userId:      3,
+		// 		videoId:     1,
+		// 		actionType:  1,
+		// 		commentText: "comment test3",
+		// 	},
+		// 	wantAct: "Comment successfully",
+		// 	wantErr: false,
+		// },
 	}
 
 	for _, test := range tests {
@@ -102,5 +91,51 @@ func TestCommentAction(t *testing.T) {
 				return
 			}
 		})
+	}
+}
+
+func TestCommentDeleteAction(t *testing.T) {
+	type args struct {
+		userId      int64
+		videoId     int64
+		actionType  int32
+		commentText string
+		commentId   int64
+	}
+	tests := []struct {
+		testName string
+		args     args
+		wantAct  string
+		wantErr  bool
+	}{
+		{
+			testName: "valid comment deletion",
+			args: args{
+				userId:     1,
+				videoId:    1,
+				actionType: 2,
+				commentId:  1,
+			},
+			wantAct: "Delete the comment successfully",
+			wantErr: false,
+		},
+	}
+
+	for _, test := range tests {
+		resp, err := NewCommentActionLogic(ctx, svcCtx).CommentAction(&comment.CommentActionReq{
+			UserId:      test.args.userId,
+			VideoId:     test.args.videoId,
+			ActionType:  test.args.actionType,
+			CommentText: test.args.commentText,
+			CommentId:   test.args.commentId,
+		})
+		if (err != nil) != test.wantErr {
+			t.Errorf("CommentAction() error: %v, wantErr %v", err, test.wantErr)
+			return
+		}
+		if resp.StatusMsg != test.wantAct {
+			t.Errorf("wrong action: want %s; real %s", test.wantAct, resp.StatusMsg)
+			return
+		}
 	}
 }
