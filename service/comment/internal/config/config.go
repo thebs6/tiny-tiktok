@@ -7,4 +7,8 @@ type Config struct {
 	DB struct {
 		DataSource string
 	}
+	LOG struct {
+		ServiceName string
+		Mode        string
+	}
 }
