@@ -8,7 +8,7 @@ type FeedReq struct {
 
 type FeedResp struct {
 	NextTime   int64   `json:"next_time"`            // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
-	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
 	VideoList  []Video `json:"video_list,optional"`  // 视频列表
 }
@@ -34,7 +34,7 @@ type User struct {
 	IsFollow        bool   `json:"is_follow"`                // true-已关注，false-未关注
 	Name            string `json:"name"`                     // 用户名称
 	Signature       string `json:"signature,optional"`       // 个人简介
-	TotalFavorited  string `json:"total_favorited,optional"` // 获赞数量
+	TotalFavorited  int64 `json:"total_favorited,optional"` // 获赞数量
 	WorkCount       int64  `json:"work_count,optional"`      // 作品数
 }
 
@@ -229,3 +229,5 @@ type Message struct {
 	ID         int64  `json:"id"`                   // 消息id
 	ToUserID   int64  `json:"to_user_id"`           // 消息接收者id
 }
+
+

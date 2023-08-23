@@ -2,11 +2,9 @@ package extra_first
 
 import (
 	"context"
-
+	"github.com/zeromicro/go-zero/core/logx"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type FavoriteActionLogic struct {
