@@ -3,8 +3,8 @@ syntax = "v1"
 import "../user.api"
 
 type UserInfoReq {
-	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	Token  string `json:"token"`   // 用户鉴权token
+	UserID int64 `json:"user_id"` // 用户id
 }
 
 type UserInfoResp {
