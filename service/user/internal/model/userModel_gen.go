@@ -26,6 +26,7 @@ type (
 	userModel interface {
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
+		FindOneByUsername(ctx context.Context, username string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -36,14 +37,21 @@ type (
 	}
 
 	User struct {
-		Id            int64        `db:"id"`
-		Username      string       `db:"username"`
-		Password      string       `db:"password"`
-		FollowCount   int64        `db:"follow_count"`
-		FollowerCount int64        `db:"follower_count"`
-		CreatedAt     time.Time    `db:"created_at"`
-		UpdatedAt     time.Time    `db:"updated_at"`
-		DeletedAt     sql.NullTime `db:"deleted_at"`
+		Id              int64          `db:"id"`
+		Username        string         `db:"username"`
+		Password        string         `db:"password"`
+		FollowCount     int64          `db:"follow_count"`
+		FollowerCount   int64          `db:"follower_count"`
+		CreatedAt       time.Time      `db:"created_at"`
+		UpdatedAt       time.Time      `db:"updated_at"`
+		DeletedAt       sql.NullTime   `db:"deleted_at"`
+		IsFollow        sql.NullInt64  `db:"is_follow"`
+		Avatar          sql.NullString `db:"avatar"`
+		BackgroundImage sql.NullString `db:"background_image"`
+		Signature       sql.NullString `db:"signature"`
+		TotalFavorited  sql.NullInt64  `db:"total_favorited"`
+		WorkCount       sql.NullInt64  `db:"work_count"`
+		FavoriteCount   sql.NullInt64  `db:"favorite_count"`
 	}
 )
 
@@ -81,15 +89,29 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 	}
 }
 
+func (m *defaultUserModel) FindOneByUsername(ctx context.Context, username string) (*User, error) {
+	var resp User
+	query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", userRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, username)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.Password, data.FollowCount, data.FollowerCount, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.Password, data.FollowCount, data.FollowerCount, data.DeletedAt, data.IsFollow, data.Avatar, data.BackgroundImage, data.Signature, data.TotalFavorited, data.WorkCount, data.FavoriteCount)
 	return ret, err
 }
 
-func (m *defaultUserModel) Update(ctx context.Context, data *User) error {
+func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Username, data.Password, data.FollowCount, data.FollowerCount, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.Password, newData.FollowCount, newData.FollowerCount, newData.DeletedAt, newData.IsFollow, newData.Avatar, newData.BackgroundImage, newData.Signature, newData.TotalFavorited, newData.WorkCount, newData.FavoriteCount, newData.Id)
 	return err
 }
 
