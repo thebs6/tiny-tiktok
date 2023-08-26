@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"errors"
 
 	"tiny-tiktok/service/user/internal/model"
 	"tiny-tiktok/service/user/internal/svc"
@@ -31,12 +30,34 @@ func (l *UserInfoLogic) UserInfo(in *user.UserInfoReq) (*user.UserInfoResp, erro
 	resp, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
 
 	if err != nil && err != model.ErrNotFound {
-		return nil, errors.New("查询数据失败")
+		return nil, err
 	}
 
 	if resp == nil {
-		return nil, errors.New("用户不存在")
+		return &user.UserInfoResp{
+			StatusCode: 1004,
+			StatusMsg: "User Not Found",
+			User: nil,
+		}, nil
 	}
 
-	return &user.UserInfoResp{}, nil
+	var respUser user.User
+	
+	respUser.Avatar = resp.Avatar.String
+	respUser.BackgroundImage = resp.BackgroundImage.String
+	respUser.FavoriteCount = resp.FavoriteCount.Int64
+	respUser.FollowCount = resp.FollowCount
+	respUser.FollowerCount = resp.FollowerCount
+	respUser.Id = resp.Id
+	respUser.IsFollow = resp.IsFollow.Int64 != 0
+	respUser.Name = resp.Username
+	respUser.Signature = resp.Signature.String
+	respUser.TotalFavorited = resp.TotalFavorited.Int64
+	respUser.WorkCount = resp.WorkCount.Int64
+
+	return &user.UserInfoResp{
+		StatusCode: 200,
+		StatusMsg: "Success",
+		User: &respUser,
+	}, nil
 }
