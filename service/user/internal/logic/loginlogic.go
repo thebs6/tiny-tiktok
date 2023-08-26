@@ -2,12 +2,14 @@ package logic
 
 import (
 	"context"
+	"encoding/base64"
 
 	"tiny-tiktok/service/user/internal/model"
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"golang.org/x/crypto/scrypt"
 )
 
 type LoginLogic struct {
@@ -15,6 +17,9 @@ type LoginLogic struct {
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
+
+var PW_HASH_BYTES = 32
+var SALT = []byte{126, 145, 58, 233, 153, 107, 4, 231}
 
 func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic {
 	return &LoginLogic{
@@ -26,16 +31,15 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 	resp, err := l.svcCtx.UserModel.FindOneByName(l.ctx, in.Username)
-	// resp, err := l.svcCtx.UserModel.FindOne(l.ctx, 2)
-	// resp := model.User{
-	// 	Id:       1,
-	// 	Username: "gao",
-	// }
-	// var err error = nil
 
 	switch err {
 	case nil:
-		if resp.Password != in.Password {
+		hash, err := scrypt.Key([]byte(in.Password), SALT, 1<<15, 8, 1, PW_HASH_BYTES)
+		encodedHash := base64.StdEncoding.EncodeToString(hash)
+		if err != nil {
+			return nil, err
+		}
+		if resp.Password != encodedHash {
 			return &user.LoginResp{
 				StatusMsg: "Password is incorrect",
 				UserId:    -1,
