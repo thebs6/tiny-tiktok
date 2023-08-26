@@ -13,18 +13,21 @@ import (
 )
 
 type (
-	LoginReq     = user.LoginReq
-	LoginResp    = user.LoginResp
-	RegisterReq  = user.RegisterReq
-	RegisterResp = user.RegisterResp
-	User         = user.User
-	UserInfoReq  = user.UserInfoReq
-	UserInfoResp = user.UserInfoResp
+	LoginReq         = user.LoginReq
+	LoginResp        = user.LoginResp
+	RegisterReq      = user.RegisterReq
+	RegisterResp     = user.RegisterResp
+	User             = user.User
+	UserInfoListReq  = user.UserInfoListReq
+	UserInfoListResp = user.UserInfoListResp
+	UserInfoReq      = user.UserInfoReq
+	UserInfoResp     = user.UserInfoResp
 
 	UserService interface {
 		Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 		UserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*UserInfoResp, error)
+		UserInfoList(ctx context.Context, in *UserInfoListReq, opts ...grpc.CallOption) (*UserInfoListResp, error)
 	}
 
 	defaultUserService struct {
@@ -51,4 +54,9 @@ func (m *defaultUserService) Login(ctx context.Context, in *LoginReq, opts ...gr
 func (m *defaultUserService) UserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*UserInfoResp, error) {
 	client := user.NewUserServiceClient(m.cli.Conn())
 	return client.UserInfo(ctx, in, opts...)
+}
+
+func (m *defaultUserService) UserInfoList(ctx context.Context, in *UserInfoListReq, opts ...grpc.CallOption) (*UserInfoListResp, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.UserInfoList(ctx, in, opts...)
 }

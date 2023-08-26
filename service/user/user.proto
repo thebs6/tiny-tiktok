@@ -35,6 +35,16 @@ message UserInfoResp {
   User user = 3; // 用户信息
 }
 
+message UserInfoListReq {
+  repeated int64 user_id = 1; // 用户id
+}
+
+message UserInfoListResp {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  repeated User user = 3; // 用户信息
+}
+
 message User {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
@@ -53,4 +63,5 @@ service UserService{
   rpc Register (RegisterReq) returns (RegisterResp);
   rpc Login (LoginReq) returns (LoginResp);
   rpc UserInfo (UserInfoReq) returns (UserInfoResp);
+  rpc UserInfoList (UserInfoListReq) returns (UserInfoListResp);
 }
