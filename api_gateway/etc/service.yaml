@@ -1,7 +1,12 @@
 Name: service
 Host: 0.0.0.0
 Port: 8888
-
 Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
+
+#rpc service
+UserRpcConf:
+  Endpoints:
+    - 127.0.0.1:2004
+  NonBlock: true 
