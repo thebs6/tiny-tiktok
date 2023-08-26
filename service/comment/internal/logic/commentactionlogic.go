@@ -8,6 +8,7 @@ import (
 	"tiny-tiktok/service/comment/internal/svc"
 	"tiny-tiktok/service/comment/pb/comment"
 
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -36,6 +37,7 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 		}
 		var comment_id int64
 		err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+			// insert the record into mysql
 			res, err := l.svcCtx.CommentModel.TransInsert(l.ctx, session, data)
 			if err != nil {
 				return err
@@ -60,6 +62,8 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			if err != nil {
 				return err
 			}
+
+			// insert the record into redis
 			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
 			// mysql rollback if failed to insert into redis
 			if err != nil {
@@ -71,6 +75,8 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 
 		// transaction fails
 		if err != nil {
+			logc.Alert(l.ctx, err.Error())
+
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,

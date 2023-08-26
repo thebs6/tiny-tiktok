@@ -8,9 +8,10 @@ Etcd:
 DB:
   DataSource: thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 
-# LogConf:
-#   ServiceName: "comment"
-#   Mode: "file"
+LogConf:
+  ServiceName: "comment"
+  Mode: "file"
+  Path: "../../logs"
   
 RedisConf:
   Host: "127.0.0.1:6379"

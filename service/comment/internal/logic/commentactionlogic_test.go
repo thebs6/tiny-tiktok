@@ -9,6 +9,7 @@ import (
 	"tiny-tiktok/service/comment/pb/comment"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logc"
 )
 
 var configFile = flag.String("f", "../../etc/comment.yaml", "the config file")
@@ -20,6 +21,13 @@ func TestMain(m *testing.M) {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	svcCtx = svc.NewServiceContext(c)
+
+	logconf := logc.LogConf{
+		ServiceName: c.LogConf.ServiceName,
+		Mode:        c.LogConf.Mode,
+		Path:        c.LogConf.Path,
+	}
+	logc.MustSetup(logconf)
 
 	m.Run()
 }

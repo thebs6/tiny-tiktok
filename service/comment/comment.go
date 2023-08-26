@@ -10,6 +10,7 @@ import (
 	"tiny-tiktok/service/comment/pb/comment"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -34,11 +35,12 @@ func main() {
 	})
 	defer s.Stop()
 
-	// logconf := logc.LogConf{
-	// 	ServiceName: c.LOG.ServiceName,
-	// 	Mode:        c.LOG.Mode,
-	// }
-	// logc.MustSetup(logconf)
+	logconf := logc.LogConf{
+		ServiceName: c.LogConf.ServiceName,
+		Mode:        c.LogConf.Mode,
+		Path:        c.LogConf.Path,
+	}
+	logc.MustSetup(logconf)
 
 	fmt.Printf("Starting comment service rpc server at %s...\n", c.ListenOn)
 	s.Start()

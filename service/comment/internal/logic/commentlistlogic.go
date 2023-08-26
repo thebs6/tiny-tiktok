@@ -6,6 +6,7 @@ import (
 	"tiny-tiktok/service/comment/internal/svc"
 	"tiny-tiktok/service/comment/pb/comment"
 
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -57,6 +58,7 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 		}, nil
 	}
 	if err != nil {
+		logc.Alert(l.ctx, err.Error())
 		return nil, err
 	}
 
