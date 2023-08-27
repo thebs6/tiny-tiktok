@@ -11,6 +11,11 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	LogConf struct {
+		ServiceName string
+		Mode        string
+		Path        string
+	}
 	Cos struct {
 		URL       string
 		SecretId  string

@@ -9,6 +9,7 @@ import (
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/publish/pb/publish"
 
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -75,6 +76,7 @@ func (l *PublishActionLogic) uploadVideo(videoKey string) error {
 	client := l.svcCtx.CosClient
 	file, err := l.File.Open()
 	if err != nil {
+		logc.Info(l.ctx, "File.Open failed", err)
 		return err
 	}
 	defer file.Close()
@@ -82,6 +84,7 @@ func (l *PublishActionLogic) uploadVideo(videoKey string) error {
 	// Put() can only upload file which is less than 5GB
 	_, err = client.Object.Put(l.ctx, videoKey, file, nil)
 	if err != nil {
+		logc.Info(l.ctx, "Object.Put failed", err)
 		return err
 	}
 

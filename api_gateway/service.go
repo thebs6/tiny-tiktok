@@ -9,6 +9,7 @@ import (
 	"tiny-tiktok/api_gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/rest"
 )
 
@@ -25,6 +26,13 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+
+	logconf := logc.LogConf{
+		ServiceName: c.Log.ServiceName,
+		Mode:        c.Log.Mode,
+		Path:        c.Log.Path,
+	}
+	logc.MustSetup(logconf)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

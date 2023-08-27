@@ -6,14 +6,15 @@ Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
 
-Log:
-  ServiceName: "publish"
-  Mode: "file"
-
 Cos:
   URL:	"https://tiny-tiktok-1320230835.cos.ap-beijing.myqcloud.com"
   SecretID:  "AKIDBFB7IQYm1DN5e0GzYt1wkO7lLo8JIvfF"
   SecretKey: "c4Od2JEyYyZ2LXcaXQEwYDvcIwRlATtE"
+
+LogConf:
+  ServiceName: "api_gateway"
+  Mode: "file"
+  Path: "../../logs"
 
 Publish:
   Etcd:
