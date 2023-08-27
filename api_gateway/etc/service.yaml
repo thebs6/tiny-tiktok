@@ -5,3 +5,18 @@ Port: 8888
 Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
+
+Log:
+  ServiceName: "publish"
+  Mode: "file"
+
+Cos:
+  URL:	"https://tiny-tiktok-1320230835.cos.ap-beijing.myqcloud.com"
+  SecretID:  "AKIDBFB7IQYm1DN5e0GzYt1wkO7lLo8JIvfF"
+  SecretKey: "c4Od2JEyYyZ2LXcaXQEwYDvcIwRlATtE"
+
+Publish:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2378
+    Key: publish.rpc

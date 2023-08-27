@@ -75,7 +75,6 @@ type UserInfoResp struct {
 
 type PublishActionReq struct {
 	Token string `form:"token,omitempty"` // 用户登录状态下设置
-	Data  []byte `form:"data"`
 	Title string `form:"title"`
 }
 

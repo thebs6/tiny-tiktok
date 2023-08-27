@@ -2,7 +2,6 @@ syntax = "v1"
 
 type PublishActionReq {
 	Token string `form:"token,omitempty"` // 用户登录状态下设置
-	Data  []byte `form:"data"`
 	Title string `form:"title"`
 }
 
