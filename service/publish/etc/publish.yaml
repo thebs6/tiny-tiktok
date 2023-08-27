@@ -5,6 +5,11 @@ Etcd:
   - 127.0.0.1:2378
   Key: publish.rpc
 
+LogConf:
+  ServiceName: "publish"
+  Mode: "file"
+  Path: "../../logs"
+
 DB:
   DataSource: thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 

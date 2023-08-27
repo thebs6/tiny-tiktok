@@ -28,8 +28,8 @@ func main() {
 	handler.RegisterHandlers(server, ctx)
 
 	logconf := logc.LogConf{
-		ServiceName: c.Log.ServiceName,
 		Mode:        c.Log.Mode,
+		ServiceName: c.Log.ServiceName,
 		Path:        c.Log.Path,
 	}
 	logc.MustSetup(logconf)

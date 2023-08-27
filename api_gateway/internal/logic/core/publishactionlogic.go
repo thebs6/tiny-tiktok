@@ -33,7 +33,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 	// 1. 标题重复怎么处理？
 	// 2. 可以将视频上传、截图和publishrpc服务调用改成并发执行？
 	// 		改成并发后，如果其中一个失败了，另一个怎么处理？
-	videoKey := "video/" + req.Title
+	videoKey := "video/" + req.Title + ".mp4"
 	err = l.uploadVideo(videoKey)
 	if err != nil {
 		return &types.PublishActionResp{
@@ -42,7 +42,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 		}, err
 	}
 
-	coverKey := "cover/" + req.Title
+	coverKey := "cover/" + req.Title + ".mp4"
 	err = l.snapshotAndUpload(coverKey)
 	if err != nil {
 		return &types.PublishActionResp{

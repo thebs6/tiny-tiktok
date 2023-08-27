@@ -10,6 +10,7 @@ import (
 	"tiny-tiktok/service/publish/pb/publish"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -33,6 +34,13 @@ func main() {
 		}
 	})
 	defer s.Stop()
+
+	logconf := logc.LogConf{
+		ServiceName: c.Log.ServiceName,
+		Mode:        c.Log.Mode,
+		Path:        c.Log.Path,
+	}
+	logc.MustSetup(logconf)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
 
 	"tiny-tiktok/api_gateway/internal/logic/core"
@@ -24,6 +25,7 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		if err := r.ParseMultipartForm(defaultMultipartMemory); err != nil {
+			fmt.Println("ParseMultipartForm failed", err)
 			logc.Info(r.Context(), "ParseMultipartForm failed", err)
 			httpx.Error(w, err)
 			return

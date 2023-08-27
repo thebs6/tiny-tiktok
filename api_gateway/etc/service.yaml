@@ -1,6 +1,7 @@
 Name: service
 Host: 0.0.0.0
 Port: 8888
+MaxBytes: 33554432
 
 Auth:
   AccessSecret: "AccessSecret"
