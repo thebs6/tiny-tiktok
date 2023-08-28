@@ -11,9 +11,7 @@ import (
 	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/zeromicro/go-zero/core/discov"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type LoginLogic struct {
@@ -31,15 +29,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
-	// todo: add your logic here and delete this line
-	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
-		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
-			Key:   "user.rpc",
-		},
-	})
-	client := user.NewUserServiceClient(conn.Conn())
-	respRpc, err := client.Login(context.Background(), &user.LoginReq{
+	respRpc, err := l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
 		Username: req.Username,
 		Password: req.Password,
 	})

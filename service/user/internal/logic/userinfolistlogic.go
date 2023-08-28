@@ -24,7 +24,44 @@ func NewUserInfoListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User
 }
 
 func (l *UserInfoListLogic) UserInfoList(in *user.UserInfoListReq) (*user.UserInfoListResp, error) {
-	// todo: add your logic here and delete this line
+	userList := make([]*user.User, 0, len(in.UserIdList))
+	for _, userId := range in.UserIdList {
+		userInfo, err := l.getUserInfo(userId)
+		if err != nil {
+			userList = append(userList, &user.User{Id: userId})
+			continue
+		}
+		userList = append(userList, userInfo)
+	}
 
-	return &user.UserInfoListResp{}, nil
+	return &user.UserInfoListResp{
+		StatusCode: 0,
+		StatusMsg:  "success",
+		UserList:   userList,
+	}, nil
+}
+
+func (l *UserInfoListLogic) getUserInfo(userId int64) (*user.User, error) {
+
+	resp, err := l.svcCtx.UserModel.FindOne(l.ctx, userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo := &user.User{
+		Avatar:          resp.Avatar.String,
+		BackgroundImage: resp.BackgroundImage.String,
+		FavoriteCount:   resp.FavoriteCount.Int64,
+		FollowCount:     resp.FollowCount,
+		FollowerCount:   resp.FollowerCount,
+		Id:              resp.Id,
+		IsFollow:        resp.IsFollow.Int64 != 0,
+		Name:            resp.Username,
+		Signature:       resp.Signature.String,
+		TotalFavorited:  resp.TotalFavorited.Int64,
+		WorkCount:       resp.WorkCount.Int64,
+	}
+
+	return userInfo, nil
 }
