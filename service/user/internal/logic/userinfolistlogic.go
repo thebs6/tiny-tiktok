@@ -2,10 +2,12 @@ package logic
 
 import (
 	"context"
+	"sync"
 
 	"tiny-tiktok/service/user/internal/svc"
 	"tiny-tiktok/service/user/pb/user"
 
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -24,15 +26,42 @@ func NewUserInfoListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User
 }
 
 func (l *UserInfoListLogic) UserInfoList(in *user.UserInfoListReq) (*user.UserInfoListResp, error) {
-	userList := make([]*user.User, 0, len(in.UserIdList))
-	for _, userId := range in.UserIdList {
-		userInfo, err := l.getUserInfo(userId)
-		if err != nil {
-			userList = append(userList, &user.User{Id: userId})
-			continue
+	userList := make([]*user.User, len(in.UserIdList))
+
+	// When the length of user id list is small, it is not necessary to use goroutine.
+	// The cost of create goroutines is higher than the cost of get user info synchronously
+	if len(in.UserIdList) < 16 {
+		for i, userId := range in.UserIdList {
+			userInfo, err := l.getUserInfo(userId)
+			if err != nil {
+				userList[i] = &user.User{Id: userId}
+				logc.Info(l.ctx, "UserInfoList() try to get user %d info error: %v", userId, err)
+			}
+			userList[i] = userInfo
 		}
-		userList = append(userList, userInfo)
+
+		return &user.UserInfoListResp{
+			StatusCode: 0,
+			StatusMsg:  "success",
+			UserList:   userList,
+		}, nil
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(len(in.UserIdList))
+
+	for i, userId := range in.UserIdList {
+		go func(i int, userId int64) {
+			userInfo, err := l.getUserInfo(userId)
+			if err != nil {
+				userList[i] = &user.User{Id: userId}
+				logc.Info(l.ctx, "UserInfoList() try to get user %d info error: %v", userId, err)
+			}
+			userList[i] = userInfo
+			wg.Done()
+		}(i, userId)
+	}
+	wg.Wait()
 
 	return &user.UserInfoListResp{
 		StatusCode: 0,
