@@ -101,26 +101,31 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 	// is publish by the user who try to delete it?
 
 	// get the comment from mysql and delete it from redis
-	resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
-	if err != nil {
-		return &comment.CommentActionResp{
-			StatusMsg: "Failed to delete the comment",
-			Comment:   nil,
-		}, err
-	}
 
-	err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
-	if err != nil {
-		return &comment.CommentActionResp{
-			StatusMsg: "Failed to delete the comment",
-			Comment:   nil,
-		}, err
-	}
+	err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+		// Get the comment from db before soft deleting it.
+		// Because once we set the deleted_at, the record in db will be different from the record in redis,
+		// and we will be unable to remove the record from redis.
+		resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
+		if err != nil {
+			return err
+		}
 
-	// soft delete the record in mysql after deleting the record in redis
-	// or the record will be different from the one in redis
-	// and fail to delete the record in redis
-	err = l.svcCtx.CommentModel.SoftDel(l.ctx, in.CommentId)
+		// Soft delete the record in db
+		err = l.svcCtx.CommentModel.TransSoftDel(l.ctx, session, in.CommentId)
+		if err != nil {
+			return err
+		}
+
+		// Remove the record from redis after successing to soft delete the record in db.
+		// If we fail to remove the record from redis, we will rollback the soft delete operation.
+		err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return &comment.CommentActionResp{
 			StatusMsg: "Failed to delete the comment",

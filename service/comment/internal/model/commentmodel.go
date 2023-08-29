@@ -23,6 +23,7 @@ type (
 		SoftDel(ctx context.Context, comment_id int64) error
 		TransInsert(ctx context.Context, session sqlx.Session, data *Comment) (sql.Result, error)
 		TransFindone(ctx context.Context, session sqlx.Session, id int64) (*Comment, error)
+		TransSoftDel(ctx context.Context, session sqlx.Session, comment_id int64) error
 	}
 
 	customCommentModel struct {
@@ -78,6 +79,12 @@ func (m *defaultCommentModel) TransFindone(ctx context.Context, session sqlx.Ses
 	default:
 		return nil, err
 	}
+}
+
+func (m *defaultCommentModel) TransSoftDel(ctx context.Context, session sqlx.Session, comment_id int64) error {
+	query := fmt.Sprintf("update %s set `deleted_at` = ? where `id` = ?", m.table)
+	_, err := session.ExecCtx(ctx, query, sql.NullTime{Time: time.Now(), Valid: true}, comment_id)
+	return err
 }
 
 // for redis ZAdd
