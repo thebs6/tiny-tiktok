@@ -26,10 +26,42 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 
 func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.CommentListResp, error) {
 	var comments []*comment.Comment
+
 	exist, err := l.svcCtx.CommentRedis.Exists(l.ctx, in.VideoId)
-	if exist == 1 {
+
+	// redis error and get comment list from db
+	if err != nil {
+		logc.Alert(l.ctx, err.Error())
+
+		commentList, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
+		if err != nil {
+			logc.Alert(l.ctx, err.Error())
+			return &comment.CommentListResp{
+				StatusMsg:   "Fail to get comment list",
+				CommentList: comments,
+			}, err
+		}
+
+		userIdList := make([]int64, len(commentList))
+		for i, respComment := range commentList {
+			userIdList[i] = respComment.UserId
+		}
+		userList := make([]*comment.User, len(commentList))
+		// TODO(gcx): change to Microservice api
+		queryUsersByIds(userIdList, userList)
+
+		for i, respComment := range commentList {
+			comments = append(comments, &comment.Comment{
+				Id:         respComment.Id,
+				User:       userList[i],
+				Content:    respComment.Content,
+				CreateDate: respComment.CreatedAt.Format("01-02"),
+			})
+		}
+	} else if exist == 1 {
 		commentList, err := l.svcCtx.CommentRedis.ZRevRangeWithScores(l.ctx, in.VideoId)
 		if err != nil {
+			logc.Alert(l.ctx, err.Error())
 			return nil, err
 		}
 
@@ -52,33 +84,7 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 				CreateDate: c.CreatedAt.Format("01-02"),
 			})
 		}
-		return &comment.CommentListResp{
-			StatusMsg:   "Get comment list succesfully",
-			CommentList: comments,
-		}, nil
 	}
-	if err != nil {
-		logc.Alert(l.ctx, err.Error())
-		return nil, err
-	}
-
-	// Should we query mysql if the record does not exsit in redis, query mysql?
-	// respComments, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// for _, respComment := range respComments {
-	// 	// TODO(gcx): change to Microservice api
-	// 	user := queryUserById(respComment.UserId)
-
-	// 	comments = append(comments, &comment.Comment{
-	// 		Id:         respComment.Id,
-	// 		User:       user,
-	// 		Content:    respComment.Content,
-	// 		CreateDate: respComment.CreatedAt.Format("01-02"),
-	// 	})
-	// }
 
 	return &comment.CommentListResp{
 		StatusMsg:   "Get comment list succesfully",
