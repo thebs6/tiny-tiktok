@@ -20,5 +20,5 @@ LogConf:
 Publish:
   Etcd:
     Hosts:
-      - 127.0.0.1:2378
+      - 127.0.0.1:2379
     Key: publish.rpc

@@ -41,6 +41,7 @@ func main() {
 		Path:        c.Log.Path,
 	}
 	logc.MustSetup(logconf)
+	defer logc.Close()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"mime/multipart"
 	"net/http"
 
@@ -31,8 +32,6 @@ func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *types.PublishActionResp, err error) {
 	// TODO()：
 	// 1. 标题重复怎么处理？
-	// 2. 可以将视频上传、截图和publishrpc服务调用改成并发执行？
-	// 		改成并发后，如果其中一个失败了，另一个怎么处理？
 	videoKey := "video/" + req.Title + ".mp4"
 	err = l.uploadVideo(videoKey)
 	if err != nil {
@@ -48,22 +47,30 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 		return &types.PublishActionResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Publish failed!",
-		}, err
+		}, nil
 	}
 
-	user_id, _ := l.ctx.Value("payload").(int64)
+	uid, err := l.ctx.Value("payload").(json.Number).Int64()
+	if err != nil {
+		logc.Debugf(l.ctx, "payload.(string) failed")
+		return &types.PublishActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Publish failed!",
+		}, nil
+	}
 
 	_, err = l.svcCtx.Publish.PublishAction(l.ctx, &publish.PublishActionReq{
-		UserId:   user_id,
+		UserId:   uid,
 		PlayUrl:  l.svcCtx.Config.Cos.URL + videoKey,
 		CoverUrl: l.svcCtx.Config.Cos.URL + coverKey,
 		Title:    req.Title,
 	})
 	if err != nil {
+		l.Logger.Error("svc.Publish.PublishAction failed", err)
 		return &types.PublishActionResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Publish failed!",
-		}, err
+		}, nil
 	}
 
 	return &types.PublishActionResp{
@@ -73,18 +80,18 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 }
 
 func (l *PublishActionLogic) uploadVideo(videoKey string) error {
-	client := l.svcCtx.CosClient
 	file, err := l.File.Open()
 	if err != nil {
-		logc.Info(l.ctx, "File.Open failed", err)
+		l.Logger.Error("File.Open failed", err)
 		return err
 	}
 	defer file.Close()
 
+	client := l.svcCtx.CosClient
 	// Put() can only upload file which is less than 5GB
 	_, err = client.Object.Put(l.ctx, videoKey, file, nil)
 	if err != nil {
-		logc.Info(l.ctx, "Object.Put failed", err)
+		l.Logger.Error(l.ctx, "Object.Put failed", err)
 		return err
 	}
 

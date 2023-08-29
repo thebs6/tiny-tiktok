@@ -7,6 +7,7 @@ import (
 	"tiny-tiktok/service/publish/pb/publish"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -29,6 +30,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:    c,
 		CosClient: cosclient,
-		// Publish:   publish.NewPublishServiceClient(zrpc.MustNewClient(c.Publish).Conn()),
+		Publish:   publish.NewPublishServiceClient(zrpc.MustNewClient(c.Publish).Conn()),
 	}
 }
