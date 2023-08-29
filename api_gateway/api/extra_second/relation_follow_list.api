@@ -9,7 +9,7 @@ type FriendUser {
 }
 
 type RelationFollowListReq {
-	Token  string `form:"token"`   // 用户鉴权token
+	Token  int64 `form:"token"`   // 用户鉴权token
 	UserID string `form:"user_id"` // 用户id
 }
 
