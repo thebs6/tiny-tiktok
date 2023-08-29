@@ -5,3 +5,9 @@ Port: 8888
 Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
+
+Comment:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: comment.rpc

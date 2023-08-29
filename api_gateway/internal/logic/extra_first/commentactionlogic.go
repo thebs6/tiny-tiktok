@@ -2,15 +2,15 @@ package extra_first
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/comment/pb/comment"
 
-	"github.com/zeromicro/go-zero/core/discov"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type CommentActionLogic struct {
@@ -28,27 +28,37 @@ func NewCommentActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Com
 }
 
 func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq) (resp *types.CommentActionResp, err error) {
-	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
-		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
-			Key:   "comment.rpc",
-		},
-	})
-	client := comment.NewCommentServiceClient(conn.Conn())
+	// conn := zrpc.MustNewClient(zrpc.RpcClientConf{
+	// 	Etcd: discov.EtcdConf{
+	// 		Hosts: []string{"127.0.0.1:2379"},
+	// 		Key:   "comment.rpc",
+	// 	},
+	// })
+	// client := comment.NewCommentServiceClient(conn.Conn())
 
-	// userid := l.ctx.Value("payload").(int64)
-	respRpc, err := client.CommentAction(l.ctx, &comment.CommentActionReq{
-		UserId:      1,
+	uid, err := l.ctx.Value("payload").(json.Number).Int64()
+	if err != nil {
+		logc.Info(l.ctx, "payload.(string) failed")
+		return &types.CommentActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "fail!",
+		}, nil
+	}
+
+	respRpc, err := l.svcCtx.Comment.CommentAction(l.ctx, &comment.CommentActionReq{
+		UserId:      uid,
 		VideoId:     req.VideoID,
 		ActionType:  req.ActionType,
 		CommentText: req.CommentText,
 		CommentId:   req.CommentID,
 	})
 	if err != nil {
+		logc.Alert(l.ctx, err.Error())
 		resp = &types.CommentActionResp{
 			StatusCode: http.StatusOK,
-			StatusMsg:  "fail",
+			StatusMsg:  "fail!",
 		}
+		err = nil
 		return
 	}
 	if req.ActionType == 1 {
