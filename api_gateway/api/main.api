@@ -82,7 +82,7 @@ service service {
 )
 service service {
 	@handler RelationAction
-	post /relation/action (RelationActionReq) returns (RelationFollowListResp)
+	post /relation/action (RelationActionReq) returns (RelationActionResp)
 
 	@handler RelationFollowList
 	get /relation/follow/list (RelationFollowListReq) returns (RelationFollowListResp)
