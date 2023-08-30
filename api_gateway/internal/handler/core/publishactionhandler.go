@@ -30,13 +30,13 @@ func PublishActionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		_, fh, err := r.FormFile("data")
 		if err != nil {
-			logc.Alert(r.Context(), "FormFile failed")
+			logc.Alert(r.Context(), "PublishActionHandler"+err.Error())
 			httpx.Error(w, err)
 			return
 		}
 
 		l := core.NewPublishActionLogic(r.Context(), svcCtx)
-		l.File = fh
+		l.FileHeader = fh
 
 		resp, err := l.PublishAction(&req)
 		if err != nil {

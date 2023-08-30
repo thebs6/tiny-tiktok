@@ -6,12 +6,16 @@ import (
 	"tiny-tiktok/api_gateway/internal/config"
 	"tiny-tiktok/service/publish/pb/publish"
 
+	"tiny-tiktok/api_gateway/internal/redis_model"
+
+	"github.com/redis/go-redis/v9"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
 	Config    config.Config
+	Redis     redis_model.RedisModel
 	CosClient *cos.Client
 	Publish   publish.PublishServiceClient
 }
@@ -30,6 +34,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:    c,
 		CosClient: cosclient,
-		Publish:   publish.NewPublishServiceClient(zrpc.MustNewClient(c.Publish).Conn()),
+		Redis: redis_model.NewRedisModel(redis.NewClient(&redis.Options{
+			Addr:     c.RedisConf.Host,
+			Password: c.RedisConf.Pass,
+		})),
+		Publish: publish.NewPublishServiceClient(zrpc.MustNewClient(c.Publish).Conn()),
 	}
 }

@@ -9,8 +9,15 @@ Auth:
 
 Cos:
   URL:	"https://tiny-tiktok-1320230835.cos.ap-beijing.myqcloud.com"
-  SecretID:  "AKIDBFB7IQYm1DN5e0GzYt1wkO7lLo8JIvfF"
-  SecretKey: "c4Od2JEyYyZ2LXcaXQEwYDvcIwRlATtE"
+  SecretID:  "AKIDoUyGPNBcGoAPajgXM6kMo9SdihU8gATX"
+  SecretKey: "uoX9mDVhmldMySq7GQUfkhZGrMk9Rbgf"
+
+RedisConf:
+  Host: "127.0.0.1:6379"
+  Type: "node"
+  Pass: ""
+  Tls:  false
+  DB:   0
 
 LogConf:
   ServiceName: "api_gateway"
@@ -22,3 +29,4 @@ Publish:
     Hosts:
       - 127.0.0.1:2379
     Key: publish.rpc
+

@@ -1,14 +1,21 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"mime/multipart"
 	"net/http"
+	"os"
+	"path"
+	"time"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/publish/pb/publish"
+
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -18,7 +25,8 @@ type PublishActionLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
-	File   *multipart.FileHeader
+	// File       multipart.File
+	FileHeader *multipart.FileHeader
 }
 
 func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PublishActionLogic {
@@ -30,19 +38,29 @@ func NewPublishActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pub
 }
 
 func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *types.PublishActionResp, err error) {
-	// TODO()：
-	// 1. 标题重复怎么处理？
-	videoKey := "video/" + req.Title + ".mp4"
+	// TODO(gcx)：
+	// 1.视频截图及上传，视频发布微服务，二者之一失败，但前面的操作已经完成，怎么处理？
+	// 2.消息队列
+	videoCosId, err := l.getVideoKey(req.Title)
+	if err != nil {
+		logc.Alert(l.ctx, err.Error())
+		return &types.PublishActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Publish failed!",
+		}, nil
+	}
+
+	videoKey := "video/" + videoCosId + path.Ext(l.FileHeader.Filename)
 	err = l.uploadVideo(videoKey)
 	if err != nil {
 		return &types.PublishActionResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Publish failed!",
-		}, err
+		}, nil
 	}
 
-	coverKey := "cover/" + req.Title + ".mp4"
-	err = l.snapshotAndUpload(coverKey)
+	coverKey := "cover/" + videoCosId + ".jpeg"
+	err = l.snapshotAndUpload(coverKey, videoKey)
 	if err != nil {
 		return &types.PublishActionResp{
 			StatusCode: http.StatusOK,
@@ -80,9 +98,9 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 }
 
 func (l *PublishActionLogic) uploadVideo(videoKey string) error {
-	file, err := l.File.Open()
+	file, err := l.FileHeader.Open()
 	if err != nil {
-		l.Logger.Error("File.Open failed", err)
+		logc.Alert(l.ctx, "uploadVideo() "+err.Error())
 		return err
 	}
 	defer file.Close()
@@ -91,20 +109,79 @@ func (l *PublishActionLogic) uploadVideo(videoKey string) error {
 	// Put() can only upload file which is less than 5GB
 	_, err = client.Object.Put(l.ctx, videoKey, file, nil)
 	if err != nil {
-		l.Logger.Error(l.ctx, "Object.Put failed", err)
+		logc.Alert(l.ctx, "uploadVideo() "+err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (l *PublishActionLogic) snapshotAndUpload(coverKey string) error {
-	// TODO()： 使用ffmpeg截图
+func (l *PublishActionLogic) snapshotAndUpload(coverKey, videoKey string) error {
+	file, err := l.FileHeader.Open()
+	if err != nil {
+		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		return err
+	}
+	defer file.Close()
 
-	// client := l.svcCtx.CosClient
-	// _, err := client.Object.Put(l.ctx, coverKey, f, nil)
-	// if err != nil {
-	// 	return err
-	// }
+	// snapshot the video at framNum
+	frameNum := 1
+	buf := bytes.NewBuffer(nil)
+
+	// method 1. use ffmpeg to snapshot from io.Reader(fastest)
+	// newFile, _ := os.Create("./cos_test_com.mp4")
+	// defer newFile.Close()
+	// b, _ := io.ReadAll(file)
+	// newFile.Write(b)
+	// err := ffmpeg.Input("pipe:", ffmpeg.KwArgs{}).WithInput(file).
+	// 	// err := ffmpeg.Input("./cos_test_com.mp4").
+	// 	Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+	// 	Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+	// 	WithOutput(buf, os.Stdout).
+	// 	Run()
+
+	// method 2. use ffmpeg to snapshot from playurl and put it to cos
+	err = ffmpeg.Input(l.svcCtx.Config.Cos.URL+"/"+videoKey).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithOutput(buf, os.Stdout).
+		Run()
+
+	// method 3. use ffmpeg to snapshot and put it to cos directly by s3
+	// TODO(gcx): upload to cos directly by s3
+	// https://cloud.tencent.com/developer/article/1814657
+	// err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{}).
+	// 	Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+	// 	Output("s3://data-1251825869/test_out.ts", ffmpeg.KwArgs{
+	// 		"aws_config": &aws.Config{
+	// 			Credentials: credentials.NewStaticCredentials("xx", "yyy", ""),
+	// 			Endpoint:    aws.String("xx"),
+	// 			// Region: aws.String("yyy"),
+	// 		},
+	// 		"format": "image2"}).
+	// 	WithOutput(buf).WithInput(file).
+	// 	Run()
+
+	if err != nil {
+		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		return err
+	}
+
+	client := l.svcCtx.CosClient
+	_, err = client.Object.Put(l.ctx, coverKey, buf, nil)
+	if err != nil {
+		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		return err
+	}
 	return nil
+}
+
+func (l *PublishActionLogic) getVideoKey(title string) (string, error) {
+	now := time.Now()
+	// format: type(2) + year(2) + month(2) + day(2) + hour(2) + minute(2) + second(2) + id_in_one_second(4)
+	id, err := l.svcCtx.Redis.INCR(l.ctx)
+	if err != nil {
+		return "", err
+	}
+	return title + "_01" + now.Format("060102150405") + fmt.Sprintf("%04d", id), nil
 }
