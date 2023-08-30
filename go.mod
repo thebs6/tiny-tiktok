@@ -7,6 +7,7 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
 	github.com/u2takey/ffmpeg-go v0.5.0
 	github.com/zeromicro/go-zero v1.5.4
+	golang.org/x/sync v0.2.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )

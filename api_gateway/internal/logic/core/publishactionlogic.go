@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"path"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	"tiny-tiktok/service/publish/pb/publish"
 
 	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -51,22 +51,38 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 	}
 
 	videoKey := "video/" + videoCosId + path.Ext(l.FileHeader.Filename)
-	err = l.uploadVideo(videoKey)
-	if err != nil {
-		return &types.PublishActionResp{
-			StatusCode: http.StatusOK,
-			StatusMsg:  "Publish failed!",
-		}, nil
-	}
-
 	coverKey := "cover/" + videoCosId + ".jpeg"
-	err = l.snapshotAndUpload(coverKey, videoKey)
-	if err != nil {
-		return &types.PublishActionResp{
-			StatusCode: http.StatusOK,
-			StatusMsg:  "Publish failed!",
-		}, nil
-	}
+	// err = l.uploadVideo(videoKey)
+	// if err != nil {
+	// 	return &types.PublishActionResp{
+	// 		StatusCode: http.StatusOK,
+	// 		StatusMsg:  "Publish failed!",
+	// 	}, nil
+	// }
+
+	// err = l.snapshotAndUpload(coverKey, videoKey)
+	// if err != nil {
+	// 	return &types.PublishActionResp{
+	// 		StatusCode: http.StatusOK,
+	// 		StatusMsg:  "Publish failed!",
+	// 	}, nil
+	// }
+
+	// upload video and snapshot in goroutine
+	group := new(errgroup.Group)
+	group.Go(func() error {
+		err = l.uploadVideo(videoKey)
+		if err != nil {
+			return err
+		}
+
+		err = l.snapshotAndUpload(coverKey, videoKey)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	uid, err := l.ctx.Value("payload").(json.Number).Int64()
 	if err != nil {
@@ -83,8 +99,12 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 		CoverUrl: l.svcCtx.Config.Cos.URL + coverKey,
 		Title:    req.Title,
 	})
-	if err != nil {
-		l.Logger.Error("svc.Publish.PublishAction failed", err)
+
+	if err != nil || group.Wait() != nil {
+		// note: error of group.Wait() has logged in uploadVideo() or snapshotAndUpload()
+		if err != nil {
+			logc.Alert(l.ctx, err.Error())
+		}
 		return &types.PublishActionResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Publish failed!",
@@ -119,7 +139,7 @@ func (l *PublishActionLogic) uploadVideo(videoKey string) error {
 func (l *PublishActionLogic) snapshotAndUpload(coverKey, videoKey string) error {
 	file, err := l.FileHeader.Open()
 	if err != nil {
-		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		logc.Alert(l.ctx, "snapshotAndUpload() fileopen "+err.Error())
 		return err
 	}
 	defer file.Close()
@@ -144,7 +164,8 @@ func (l *PublishActionLogic) snapshotAndUpload(coverKey, videoKey string) error 
 	err = ffmpeg.Input(l.svcCtx.Config.Cos.URL+"/"+videoKey).
 		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
 		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
-		WithOutput(buf, os.Stdout).
+		// WithOutput(buf, os.Stdout).
+		WithOutput(buf).
 		Run()
 
 	// method 3. use ffmpeg to snapshot and put it to cos directly by s3
@@ -163,14 +184,14 @@ func (l *PublishActionLogic) snapshotAndUpload(coverKey, videoKey string) error 
 	// 	Run()
 
 	if err != nil {
-		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		logc.Alert(l.ctx, "snapshotAndUpload() ffmpeg "+err.Error())
 		return err
 	}
 
 	client := l.svcCtx.CosClient
 	_, err = client.Object.Put(l.ctx, coverKey, buf, nil)
 	if err != nil {
-		logc.Alert(l.ctx, "snapshotAndUpload() "+err.Error())
+		logc.Alert(l.ctx, "snapshotAndUpload() put to cos "+err.Error())
 		return err
 	}
 	return nil
