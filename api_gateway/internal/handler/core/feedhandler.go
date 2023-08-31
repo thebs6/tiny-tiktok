@@ -1,9 +1,8 @@
 package core
 
 import (
-	"net/http"
-
 	"github.com/zeromicro/go-zero/rest/httpx"
+	"net/http"
 	"tiny-tiktok/api_gateway/internal/logic/core"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
