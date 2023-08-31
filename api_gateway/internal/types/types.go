@@ -30,11 +30,11 @@ type User struct {
 	FavoriteCount   int64  `json:"favorite_count,optional"`  // 喜欢数
 	FollowCount     int64  `json:"follow_count,optional"`    // 关注总数
 	FollowerCount   int64  `json:"follower_count,optional"`  // 粉丝总数
-	ID              int64  `json:"id"`                       // 用户id
+	Id              int64  `json:"id"`                       // 用户id
 	IsFollow        bool   `json:"is_follow"`                // true-已关注，false-未关注
 	Name            string `json:"name"`                     // 用户名称
 	Signature       string `json:"signature,optional"`       // 个人简介
-	TotalFavorited  int64 `json:"total_favorited,optional"` // 获赞数量
+	TotalFavorited  int64  `json:"total_favorited,optional"` // 获赞数量
 	WorkCount       int64  `json:"work_count,optional"`      // 作品数
 }
 
@@ -63,8 +63,8 @@ type RegisterResp struct {
 }
 
 type UserInfoReq struct {
-	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	Token  string `json:"token"`   // 用户鉴权token
+	UserID int64  `json:"user_id"` // 用户id
 }
 
 type UserInfoResp struct {
