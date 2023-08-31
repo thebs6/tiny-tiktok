@@ -24,11 +24,9 @@ var (
 
 type (
 	userModel interface {
-		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByUsername(ctx context.Context, username string) (*User, error)
-		Update(ctx context.Context, data *User) error
-		Delete(ctx context.Context, id int64) error
+
 	}
 
 	defaultUserModel struct {
@@ -62,11 +60,7 @@ func newUserModel(conn sqlx.SqlConn) *defaultUserModel {
 	}
 }
 
-func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
-}
+
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
 	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
