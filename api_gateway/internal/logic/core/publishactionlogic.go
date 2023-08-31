@@ -52,6 +52,8 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 
 	videoKey := "video/" + videoCosId + path.Ext(l.FileHeader.Filename)
 	coverKey := "cover/" + videoCosId + ".jpeg"
+
+	// DEPRECATED upload video asynchronously now
 	// err = l.uploadVideo(videoKey)
 	// if err != nil {
 	// 	return &types.PublishActionResp{
@@ -76,10 +78,11 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 			return err
 		}
 
-		err = l.snapshotAndUpload(coverKey, videoKey)
-		if err != nil {
-			return err
-		}
+		// DEPRECATED use cos to snapshot instead now
+		// err = l.snapshotAndUpload(coverKey, videoKey)
+		// if err != nil {
+		// 	return err
+		// }
 
 		return nil
 	})
