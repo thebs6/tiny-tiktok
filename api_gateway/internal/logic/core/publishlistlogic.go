@@ -8,6 +8,7 @@ import (
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/publish/pb/publish"
 
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -30,7 +31,7 @@ func (l *PublishListLogic) PublishList(req *types.PublishListReq) (resp *types.P
 		UserId: req.UserID,
 	})
 	if err != nil {
-		logx.Error("svc.Publish.PublishList failed", err)
+		logc.Alert(l.ctx, "svc.Publish.PublishList "+err.Error())
 		return &types.PublishListResp{
 			StatusCode: http.StatusOK,
 			StatusMsg:  "Get publish list failed",

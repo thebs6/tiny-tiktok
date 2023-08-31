@@ -26,18 +26,22 @@ LogConf:
   Path: "api_gateway/logs"
 
 #rpc service
-Feed:
-  Endpoints:
-    - 127.0.0.1:2379
-  Key: feed.rpc
+FeedRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: feed.rpc
+
 
 UserRpcConf:
-  Endpoints:
-    - 127.0.0.1:2379
-  Key: user.rpc
-  NonBlock: true 
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+  NonBlock: true
+
   
-Publish:
+PublishRpcConf:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
