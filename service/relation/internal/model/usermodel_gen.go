@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -20,6 +21,7 @@ var (
 	userRows                = strings.Join(userFieldNames, ",")
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	userRowsWithOutPWD		= strings.Join(stringx.Remove(userFieldNames, "`password`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 )
 
 type (
@@ -29,6 +31,8 @@ type (
 		FindOneByUsername(ctx context.Context, username string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
+		FindFollowerList(ctx context.Context, id int64) ([]*User, error)
+		FindFollowList(ctx context.Context, id int64) ([]*User, error)
 	}
 
 	defaultUserModel struct {
@@ -117,4 +121,46 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 
 func (m *defaultUserModel) tableName() string {
 	return m.table
+}
+
+func (m *defaultUserModel) FindFollowerList(ctx context.Context, id int64) ([]*User, error) {
+	builder := squirrel.SelectBuilder{}
+	builder = builder.Columns(userRows)
+	builder = builder.From(m.table + " u").Join("relation r ON u.id = r.follower_id").Where("r.follow_id = ?", id)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*User
+	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
+
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) FindFollowList(ctx context.Context, id int64) ([]*User, error) {
+	builder := squirrel.SelectBuilder{}
+	builder = builder.Columns(userRows)
+	builder = builder.From(m.table + " u").Join("relation r ON u.id = r.follow_id").Where("r.follow_id = ?", id)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*User
+	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
+
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
 }

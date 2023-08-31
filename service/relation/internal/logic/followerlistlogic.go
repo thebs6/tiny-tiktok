@@ -25,6 +25,35 @@ func NewFollowerListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Foll
 
 func (l *FollowerListLogic) FollowerList(in *relation.FollowerListRequest) (*relation.FollowerListResponse, error) {
 	// todo: add your logic here and delete this line
+	userId := in.UserId
 
-	return &relation.FollowerListResponse{}, nil
+	resp, err := l.svcCtx.UserModel.FindFollowerList(l.ctx, userId)
+
+	if err != nil {
+		return nil, err
+	}
+	
+	var respUserList []*relation.User
+
+	for _, user := range resp {
+		respUserList = append(respUserList, &relation.User{
+			Id: user.Id,
+			Name: user.Username,
+			FollowCount: user.FollowCount,
+			FollowerCount: user.FollowerCount,
+			IsFollow: user.IsFollow.Valid,
+			Avatar: user.Avatar.String,
+			BackgroundImage: user.BackgroundImage.String,
+			Signature: user.Signature.String,
+			TotalFavorited: user.TotalFavorited.Int64,
+			WorkCount: user.WorkCount.Int64,
+			FavoriteCount: user.FavoriteCount.Int64,
+		})
+	}
+	
+	return &relation.FollowerListResponse{
+		StatusCode: 200,
+		StatusMsg: "查询成功",
+		UserList: respUserList,
+	}, nil
 }

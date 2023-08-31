@@ -168,18 +168,18 @@ type FriendUser struct {
 
 type RelationFollowListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64 `form:"user_id"` // 用户id
 }
 
 type RelationFollowListResp struct {
 	StatusCode int64       `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string       `json:"status_msg,optional"` // 返回状态描述
-	UserList   []FriendUser `json:"user_list"`           // 用户信息列表
+	UserList   []User       `json:"user_list"`           // 用户列表
 }
 
 type RelationFollowerListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64 `form:"user_id"` // 用户id
 }
 
 type RelationFollowerListResp struct {
