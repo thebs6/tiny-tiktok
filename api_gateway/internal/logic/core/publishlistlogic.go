@@ -26,7 +26,7 @@ func NewPublishListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Publi
 }
 
 func (l *PublishListLogic) PublishList(req *types.PublishListReq) (resp *types.PublishListResp, err error) {
-	respRpc, err := l.svcCtx.Publish.PublishList(l.ctx, &publish.PublishListReq{
+	respRpc, err := l.svcCtx.PublishRpc.PublishList(l.ctx, &publish.PublishListReq{
 		UserId: req.UserID,
 	})
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"tiny-tiktok/api_gateway/internal/config"
+	"tiny-tiktok/service/feed/pb/feed"
 	"tiny-tiktok/service/user/pb/user"
 	"tiny-tiktok/service/user/userservice"
 
@@ -17,11 +18,12 @@ import (
 )
 
 type ServiceContext struct {
-	Config    config.Config
-	UserRpc   userservice.UserService
-	Redis     redis_model.RedisModel
-	CosClient *cos.Client
-	Publish   publish.PublishServiceClient
+	Config     config.Config
+	Redis      redis_model.RedisModel
+	CosClient  *cos.Client
+	FeedRpc    feed.FeedServiceClient
+	UserRpc    userservice.UserService
+	PublishRpc publish.PublishServiceClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -37,12 +39,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
 		Config:    c,
-		UserRpc:   user.NewUserServiceClient(zrpc.MustNewClient(c.UserRpcConf).Conn()),
 		CosClient: cosclient,
 		Redis: redis_model.NewRedisModel(redis.NewClient(&redis.Options{
 			Addr:     c.RedisConf.Host,
 			Password: c.RedisConf.Pass,
 		})),
-		Publish: publish.NewPublishServiceClient(zrpc.MustNewClient(c.Publish).Conn()),
+		FeedRpc:    feed.NewFeedServiceClient(zrpc.MustNewClient(c.FeedRpcConf).Conn()),
+		UserRpc:    user.NewUserServiceClient(zrpc.MustNewClient(c.UserRpcConf).Conn()),
+		PublishRpc: publish.NewPublishServiceClient(zrpc.MustNewClient(c.PublishRpcConf).Conn()),
 	}
 }

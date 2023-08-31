@@ -11,8 +11,8 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	UserRpcConf zrpc.RpcClientConf
-	LogConf     struct {
+
+	LogConf struct {
 		ServiceName string
 		Mode        string
 		Path        string
@@ -29,5 +29,7 @@ type Config struct {
 		SecretId  string
 		SecretKey string
 	}
-	Publish zrpc.RpcClientConf
+	FeedRpcConf    zrpc.RpcClientConf
+	UserRpcConf    zrpc.RpcClientConf
+	PublishRpcConf zrpc.RpcClientConf
 }

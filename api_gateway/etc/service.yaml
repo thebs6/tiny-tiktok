@@ -8,12 +8,6 @@ Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
 
-#rpc service
-UserRpcConf:
-  Endpoints:
-    - 127.0.0.1:2004
-  NonBlock: true 
-  
 Cos:
   URL:	"https://tiny-tiktok-1320230835.cos.ap-beijing.myqcloud.com"
   SecretID:  "AKIDoUyGPNBcGoAPajgXM6kMo9SdihU8gATX"
@@ -29,8 +23,20 @@ RedisConf:
 LogConf:
   ServiceName: "api_gateway"
   Mode: "file"
-  Path: "../../logs"
+  Path: "api_gateway/logs"
 
+#rpc service
+Feed:
+  Endpoints:
+    - 127.0.0.1:2379
+  Key: feed.rpc
+
+UserRpcConf:
+  Endpoints:
+    - 127.0.0.1:2379
+  Key: user.rpc
+  NonBlock: true 
+  
 Publish:
   Etcd:
     Hosts:

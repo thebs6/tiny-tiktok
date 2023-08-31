@@ -96,7 +96,7 @@ func (l *PublishActionLogic) PublishAction(req *types.PublishActionReq) (resp *t
 		}, nil
 	}
 
-	_, err = l.svcCtx.Publish.PublishAction(l.ctx, &publish.PublishActionReq{
+	_, err = l.svcCtx.PublishRpc.PublishAction(l.ctx, &publish.PublishActionReq{
 		UserId:   uid,
 		PlayUrl:  l.svcCtx.Config.Cos.URL + videoKey,
 		CoverUrl: l.svcCtx.Config.Cos.URL + coverKey,
