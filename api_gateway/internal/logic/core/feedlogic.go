@@ -30,7 +30,7 @@ func NewFeedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FeedLogic {
 func (l *FeedLogic) Feed(req *types.FeedReq) (resp *types.FeedResp, err error) {
 	// todo: add your logic here and delete this line
 	var dateTime string
-	if req.LatestTime == "" {
+	if req.LatestTime == "" || req.LatestTime == "0" {
 		dateTime = time.Now().Format("2006-01-02 15:04:05")
 	}
 	LatestTime, _ := strconv.ParseInt(req.LatestTime, 10, 64)
