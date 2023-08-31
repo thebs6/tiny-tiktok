@@ -33,6 +33,7 @@ type (
 		Delete(ctx context.Context, id int64) error
 		FindFollowerList(ctx context.Context, id int64) ([]*User, error)
 		FindFollowList(ctx context.Context, id int64) ([]*User, error)
+		FindFriendList(ctx context.Context, id int64) ([]*User, error)
 	}
 
 	defaultUserModel struct {
@@ -148,6 +149,30 @@ func (m *defaultUserModel) FindFollowList(ctx context.Context, id int64) ([]*Use
 	builder := squirrel.SelectBuilder{}
 	builder = builder.Columns(userRows)
 	builder = builder.From(m.table + " u").Join("relation r ON u.id = r.follow_id").Where("r.follow_id = ?", id)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*User
+	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
+
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) FindFriendList(ctx context.Context, id int64) ([]*User, error) {
+	builder := squirrel.SelectBuilder{}
+	builder = builder.Columns(userRows)
+	builder = builder.From(m.table + " u").
+					  Join("relation r1 ON u.id = r1.follow_id").
+					  Join("relation r2 ON u.id = r2.follower_id").
+					  Where(squirrel.Eq{"r1.follower_id": id, "r2.follow_id": id})
 
 	query, args, err := builder.ToSql()
 	if err != nil {

@@ -25,6 +25,6 @@ func NewRelationFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *RelationFriendListLogic) RelationFriendList(req *types.RelationFriendListReq) (resp *types.RelationFriendListResp, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	return
 }
