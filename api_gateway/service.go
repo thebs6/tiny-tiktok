@@ -9,6 +9,8 @@ import (
 	"tiny-tiktok/api_gateway/internal/handler"
 	"tiny-tiktok/api_gateway/internal/svc"
 
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/rest"
 )
 

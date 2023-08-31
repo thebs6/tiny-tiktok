@@ -2,7 +2,7 @@ package core
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/logx"
+
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/user/pb/user"
