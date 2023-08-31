@@ -10,3 +10,8 @@ UserRpcConf:
   Endpoints:
     - 127.0.0.1:2004
   NonBlock: true 
+
+RelationRpcConf:
+  Endpoints:
+    - 127.0.0.1:2005
+  NonBlock: true 

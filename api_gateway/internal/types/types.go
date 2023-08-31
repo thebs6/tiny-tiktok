@@ -150,8 +150,8 @@ type CommentListResp struct {
 }
 
 type RelationActionReq struct {
-	ActionType string `form:"action_type"` // 1-关注，2-取消关注
-	ToUserID   string `form:"to_user_id"`  // 对方用户id
+	ActionType int32 `form:"action_type"` // 1-关注，2-取消关注
+	ToUserID   int64 `form:"to_user_id"`  // 对方用户id
 	Token      string `form:"token"`       // 用户鉴权token
 }
 
@@ -172,7 +172,7 @@ type RelationFollowListReq struct {
 }
 
 type RelationFollowListResp struct {
-	StatusCode string       `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int64       `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string       `json:"status_msg,optional"` // 返回状态描述
 	UserList   []FriendUser `json:"user_list"`           // 用户信息列表
 }
