@@ -1,6 +1,9 @@
 Name: service
 Host: 0.0.0.0
 Port: 8888
+MaxBytes: 33554432
+Timeout: 30000 # 30s
+
 Auth:
   AccessSecret: "AccessSecret"
   AccessExpire: 604800
@@ -10,3 +13,27 @@ UserRpcConf:
   Endpoints:
     - 127.0.0.1:2004
   NonBlock: true 
+  
+Cos:
+  URL:	"https://tiny-tiktok-1320230835.cos.ap-beijing.myqcloud.com"
+  SecretID:  "AKIDoUyGPNBcGoAPajgXM6kMo9SdihU8gATX"
+  SecretKey: "uoX9mDVhmldMySq7GQUfkhZGrMk9Rbgf"
+
+RedisConf:
+  Host: "127.0.0.1:6379"
+  Type: "node"
+  Pass: ""
+  Tls:  false
+  DB:   0
+
+LogConf:
+  ServiceName: "api_gateway"
+  Mode: "file"
+  Path: "../../logs"
+
+Publish:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: publish.rpc
+

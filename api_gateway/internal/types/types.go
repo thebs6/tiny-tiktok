@@ -75,7 +75,6 @@ type UserInfoResp struct {
 
 type PublishActionReq struct {
 	Token string `form:"token,omitempty"` // 用户登录状态下设置
-	Data  []byte `form:"data"`
 	Title string `form:"title"`
 }
 
@@ -86,7 +85,7 @@ type PublishActionResp struct {
 
 type PublishListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type PublishListResp struct {
