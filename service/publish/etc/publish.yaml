@@ -8,9 +8,14 @@ Etcd:
 LogConf:
   ServiceName: "publish"
   Mode: "file"
-  Path: "../../logs"
+  Path: service/publish/logs"
   Level: "debug"
 
 DB:
   DataSource: thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc

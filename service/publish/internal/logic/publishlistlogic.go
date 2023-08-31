@@ -2,10 +2,11 @@ package logic
 
 import (
 	"context"
-	"fmt"
+	"net/http"
 
 	"tiny-tiktok/service/publish/internal/svc"
 	"tiny-tiktok/service/publish/pb/publish"
+	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -26,25 +27,47 @@ func NewPublishListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Publi
 }
 
 func (l *PublishListLogic) PublishList(in *publish.PublishListReq) (*publish.PublishListResp, error) {
-	fmt.Println(in.UserId)
 	videoList, err := l.svcCtx.VideoModel.List(l.ctx, in.UserId)
-	fmt.Println(len(videoList))
 	if err != nil {
-		logc.Alert(l.ctx, "DB List failed")
+		logc.Alert(l.ctx, "DB List failed "+err.Error())
 		return nil, err
 	}
 	userIdList := make([]int64, len(videoList))
 	for i, video := range videoList {
 		userIdList[i] = video.Author
 	}
-	userList := make([]*publish.User, len(videoList))
-	queryUsersByIds(userIdList, userList)
+	// userList := make([]*publish.User, len(videoList))
+	// queryUsersByIds(userIdList, userList)
+	userResp, err := l.svcCtx.UserRpc.UserInfoList(l.ctx, &user.UserInfoListReq{
+		UserIdList: userIdList,
+	})
+	if err != nil {
+		logc.Alert(l.ctx, "UserRpc UserInfoList failed "+err.Error())
+		return &publish.PublishListResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Get publish list failed",
+			VideoList:  nil,
+		}, nil
+	}
 
 	videos := make([]*publish.Video, len(videoList))
 	for i, v := range videoList {
 		videos[i] = &publish.Video{
-			Id:            v.Id,
-			Author:        userList[i],
+			Id: v.Id,
+			// Author:        userList[i],
+			Author: &publish.User{
+				Id:              userResp.UserList[i].Id,
+				Name:            userResp.UserList[i].Name,
+				FollowCount:     userResp.UserList[i].FollowCount,
+				FollowerCount:   userResp.UserList[i].FollowerCount,
+				IsFollow:        userResp.UserList[i].IsFollow,
+				Avatar:          userResp.UserList[i].Avatar,
+				BackgroundImage: userResp.UserList[i].BackgroundImage,
+				Signature:       userResp.UserList[i].Signature,
+				TotalFavorited:  userResp.UserList[i].TotalFavorited,
+				WorkCount:       userResp.UserList[i].WorkCount,
+				FavoriteCount:   userResp.UserList[i].FavoriteCount,
+			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.FavoriteCount,

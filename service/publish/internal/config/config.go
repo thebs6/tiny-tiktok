@@ -12,4 +12,5 @@ type Config struct {
 	DB struct {
 		DataSource string
 	}
+	UserRpcConf zrpc.RpcClientConf
 }
