@@ -8,7 +8,7 @@ type FeedReq struct {
 
 type FeedResp struct {
 	NextTime   int64   `json:"next_time"`            // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
-	StatusCode int32   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
 	VideoList  []Video `json:"video_list,optional"`  // 视频列表
 }
@@ -97,7 +97,7 @@ type PublishListResp struct {
 type FavoriteActionReq struct {
 	ActionType string `form:"action_type"` // 1-点赞，2-取消点赞
 	Token      string `form:"token"`       // 用户鉴权token
-	VideoID    string `form:"video_id"`    // 视频id
+	VideoID    int64  `form:"video_id"`    // 视频id
 }
 
 type FavoriteActionResp struct {
@@ -107,11 +107,11 @@ type FavoriteActionResp struct {
 
 type FavoriteListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type FavoriteListResp struct {
-	StatusCode string  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int64   `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg,optional"` // 返回状态描述
 	VideoList  []Video `json:"video_list"`          // 用户点赞视频列表
 }
@@ -228,5 +228,3 @@ type Message struct {
 	ID         int64  `json:"id"`                   // 消息id
 	ToUserID   int64  `json:"to_user_id"`           // 消息接收者id
 }
-
-
