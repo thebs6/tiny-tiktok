@@ -6,7 +6,6 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jinzhu/copier v0.4.0
 	github.com/redis/go-redis/v9 v9.1.0
-	github.com/reugn/go-quartz v0.7.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
 	github.com/u2takey/ffmpeg-go v0.5.0
 	github.com/zeromicro/go-zero v1.5.4
