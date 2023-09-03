@@ -50,7 +50,7 @@ message User {
   int64 favorite_count = 11; //点赞数量
 }
 
-service UserService{
+service FavoriteService{
   rpc FavoriteAction (FavoriteActionReq) returns (FavoriteActionResp);
   rpc FavoriteList (FavoriteListReq) returns (FavoriteListResp);
 }

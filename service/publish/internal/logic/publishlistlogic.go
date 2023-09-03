@@ -27,7 +27,7 @@ func NewPublishListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Publi
 }
 
 func (l *PublishListLogic) PublishList(in *publish.PublishListReq) (*publish.PublishListResp, error) {
-	videoList, err := l.svcCtx.VideoModel.List(l.ctx, in.UserId)
+	videoList, err := l.svcCtx.VideoModel.ListByUserId(l.ctx, in.UserId)
 	if err != nil {
 		logc.Alert(l.ctx, "DB List failed "+err.Error())
 		return nil, err

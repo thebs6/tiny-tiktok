@@ -8,7 +8,7 @@ type UserInfoReq {
 }
 
 type UserInfoResp {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	User       User   `json:"user"`                // 用户信息
 }

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	PublishService_PublishAction_FullMethodName = "/publish.PublishService/PublishAction"
 	PublishService_PublishList_FullMethodName   = "/publish.PublishService/PublishList"
+	PublishService_VideoList_FullMethodName     = "/publish.PublishService/VideoList"
 )
 
 // PublishServiceClient is the client API for PublishService service.
@@ -29,6 +30,7 @@ const (
 type PublishServiceClient interface {
 	PublishAction(ctx context.Context, in *PublishActionReq, opts ...grpc.CallOption) (*PublishActionResp, error)
 	PublishList(ctx context.Context, in *PublishListReq, opts ...grpc.CallOption) (*PublishListResp, error)
+	VideoList(ctx context.Context, in *VideoListReq, opts ...grpc.CallOption) (*VideoListResp, error)
 }
 
 type publishServiceClient struct {
@@ -57,12 +59,22 @@ func (c *publishServiceClient) PublishList(ctx context.Context, in *PublishListR
 	return out, nil
 }
 
+func (c *publishServiceClient) VideoList(ctx context.Context, in *VideoListReq, opts ...grpc.CallOption) (*VideoListResp, error) {
+	out := new(VideoListResp)
+	err := c.cc.Invoke(ctx, PublishService_VideoList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PublishServiceServer is the server API for PublishService service.
 // All implementations must embed UnimplementedPublishServiceServer
 // for forward compatibility
 type PublishServiceServer interface {
 	PublishAction(context.Context, *PublishActionReq) (*PublishActionResp, error)
 	PublishList(context.Context, *PublishListReq) (*PublishListResp, error)
+	VideoList(context.Context, *VideoListReq) (*VideoListResp, error)
 	mustEmbedUnimplementedPublishServiceServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedPublishServiceServer) PublishAction(context.Context, *Publish
 }
 func (UnimplementedPublishServiceServer) PublishList(context.Context, *PublishListReq) (*PublishListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PublishList not implemented")
+}
+func (UnimplementedPublishServiceServer) VideoList(context.Context, *VideoListReq) (*VideoListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VideoList not implemented")
 }
 func (UnimplementedPublishServiceServer) mustEmbedUnimplementedPublishServiceServer() {}
 
@@ -125,6 +140,24 @@ func _PublishService_PublishList_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PublishService_VideoList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VideoListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PublishServiceServer).VideoList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PublishService_VideoList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PublishServiceServer).VideoList(ctx, req.(*VideoListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PublishService_ServiceDesc is the grpc.ServiceDesc for PublishService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var PublishService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PublishList",
 			Handler:    _PublishService_PublishList_Handler,
+		},
+		{
+			MethodName: "VideoList",
+			Handler:    _PublishService_VideoList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

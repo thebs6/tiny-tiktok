@@ -45,6 +45,10 @@ func (r *RedisModel) XADD(ctx context.Context, userId, videoId int64, actionType
 	}).Err()
 }
 
+// func (r *RedisModel) S(ctx context.Context, userId int64) error {
+
+// }
+
 func (r *RedisModel) Favor(ctx context.Context, user_id, video_id int64) error {
 	user_id_str := strconv.FormatInt(user_id, 10)
 	video_id_str := strconv.FormatInt(video_id, 10)

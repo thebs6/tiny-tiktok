@@ -20,3 +20,8 @@ LogConf:
   Mode: "file"
   Path: "service/favorite/logs"
 
+PublishRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: publish.rpc

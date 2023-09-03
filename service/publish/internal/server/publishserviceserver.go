@@ -31,3 +31,8 @@ func (s *PublishServiceServer) PublishList(ctx context.Context, in *publish.Publ
 	l := logic.NewPublishListLogic(ctx, s.svcCtx)
 	return l.PublishList(in)
 }
+
+func (s *PublishServiceServer) VideoList(ctx context.Context, in *publish.VideoListReq) (*publish.VideoListResp, error) {
+	l := logic.NewVideoListLogic(ctx, s.svcCtx)
+	return l.VideoList(in)
+}

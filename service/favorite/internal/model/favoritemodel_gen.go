@@ -36,11 +36,12 @@ type (
 	}
 
 	Favorite struct {
-		Id        int64     `db:"id"`
-		UserId    int64     `db:"user_id"`
-		VideoId   int64     `db:"video_id"`
-		CreatedAt time.Time `db:"created_at"`
-		UpdatedAt time.Time `db:"updated_at"`
+		Id         int64     `db:"id"`
+		UserId     int64     `db:"user_id"`
+		VideoId    int64     `db:"video_id"`
+		IsFavorite int64     `db:"is_favorite"`
+		CreatedAt  time.Time `db:"created_at"`
+		UpdatedAt  time.Time `db:"updated_at"`
 	}
 )
 
@@ -79,14 +80,14 @@ func (m *defaultFavoriteModel) FindOne(ctx context.Context, id int64) (*Favorite
 }
 
 func (m *defaultFavoriteModel) Insert(ctx context.Context, data *Favorite) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, favoriteRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.VideoId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, favoriteRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.VideoId, data.IsFavorite)
 	return ret, err
 }
 
 func (m *defaultFavoriteModel) Update(ctx context.Context, data *Favorite) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, favoriteRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.VideoId, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.VideoId, data.IsFavorite, data.Id)
 	return err
 }
 

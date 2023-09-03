@@ -19,126 +19,126 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_FavoriteAction_FullMethodName = "/favorite.UserService/FavoriteAction"
-	UserService_FavoriteList_FullMethodName   = "/favorite.UserService/FavoriteList"
+	FavoriteService_FavoriteAction_FullMethodName = "/favorite.FavoriteService/FavoriteAction"
+	FavoriteService_FavoriteList_FullMethodName   = "/favorite.FavoriteService/FavoriteList"
 )
 
-// UserServiceClient is the client API for UserService service.
+// FavoriteServiceClient is the client API for FavoriteService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
+type FavoriteServiceClient interface {
 	FavoriteAction(ctx context.Context, in *FavoriteActionReq, opts ...grpc.CallOption) (*FavoriteActionResp, error)
 	FavoriteList(ctx context.Context, in *FavoriteListReq, opts ...grpc.CallOption) (*FavoriteListResp, error)
 }
 
-type userServiceClient struct {
+type favoriteServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
+func NewFavoriteServiceClient(cc grpc.ClientConnInterface) FavoriteServiceClient {
+	return &favoriteServiceClient{cc}
 }
 
-func (c *userServiceClient) FavoriteAction(ctx context.Context, in *FavoriteActionReq, opts ...grpc.CallOption) (*FavoriteActionResp, error) {
+func (c *favoriteServiceClient) FavoriteAction(ctx context.Context, in *FavoriteActionReq, opts ...grpc.CallOption) (*FavoriteActionResp, error) {
 	out := new(FavoriteActionResp)
-	err := c.cc.Invoke(ctx, UserService_FavoriteAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, FavoriteService_FavoriteAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) FavoriteList(ctx context.Context, in *FavoriteListReq, opts ...grpc.CallOption) (*FavoriteListResp, error) {
+func (c *favoriteServiceClient) FavoriteList(ctx context.Context, in *FavoriteListReq, opts ...grpc.CallOption) (*FavoriteListResp, error) {
 	out := new(FavoriteListResp)
-	err := c.cc.Invoke(ctx, UserService_FavoriteList_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, FavoriteService_FavoriteList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
+// FavoriteServiceServer is the server API for FavoriteService service.
+// All implementations must embed UnimplementedFavoriteServiceServer
 // for forward compatibility
-type UserServiceServer interface {
+type FavoriteServiceServer interface {
 	FavoriteAction(context.Context, *FavoriteActionReq) (*FavoriteActionResp, error)
 	FavoriteList(context.Context, *FavoriteListReq) (*FavoriteListResp, error)
-	mustEmbedUnimplementedUserServiceServer()
+	mustEmbedUnimplementedFavoriteServiceServer()
 }
 
-// UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
+// UnimplementedFavoriteServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedFavoriteServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) FavoriteAction(context.Context, *FavoriteActionReq) (*FavoriteActionResp, error) {
+func (UnimplementedFavoriteServiceServer) FavoriteAction(context.Context, *FavoriteActionReq) (*FavoriteActionResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavoriteAction not implemented")
 }
-func (UnimplementedUserServiceServer) FavoriteList(context.Context, *FavoriteListReq) (*FavoriteListResp, error) {
+func (UnimplementedFavoriteServiceServer) FavoriteList(context.Context, *FavoriteListReq) (*FavoriteListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavoriteList not implemented")
 }
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
+func (UnimplementedFavoriteServiceServer) mustEmbedUnimplementedFavoriteServiceServer() {}
 
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
+// UnsafeFavoriteServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FavoriteServiceServer will
 // result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
+type UnsafeFavoriteServiceServer interface {
+	mustEmbedUnimplementedFavoriteServiceServer()
 }
 
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	s.RegisterService(&UserService_ServiceDesc, srv)
+func RegisterFavoriteServiceServer(s grpc.ServiceRegistrar, srv FavoriteServiceServer) {
+	s.RegisterService(&FavoriteService_ServiceDesc, srv)
 }
 
-func _UserService_FavoriteAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FavoriteService_FavoriteAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FavoriteActionReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).FavoriteAction(ctx, in)
+		return srv.(FavoriteServiceServer).FavoriteAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_FavoriteAction_FullMethodName,
+		FullMethod: FavoriteService_FavoriteAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).FavoriteAction(ctx, req.(*FavoriteActionReq))
+		return srv.(FavoriteServiceServer).FavoriteAction(ctx, req.(*FavoriteActionReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_FavoriteList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FavoriteService_FavoriteList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FavoriteListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).FavoriteList(ctx, in)
+		return srv.(FavoriteServiceServer).FavoriteList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_FavoriteList_FullMethodName,
+		FullMethod: FavoriteService_FavoriteList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).FavoriteList(ctx, req.(*FavoriteListReq))
+		return srv.(FavoriteServiceServer).FavoriteList(ctx, req.(*FavoriteListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
+// FavoriteService_ServiceDesc is the grpc.ServiceDesc for FavoriteService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "favorite.UserService",
-	HandlerType: (*UserServiceServer)(nil),
+var FavoriteService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "favorite.FavoriteService",
+	HandlerType: (*FavoriteServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "FavoriteAction",
-			Handler:    _UserService_FavoriteAction_Handler,
+			Handler:    _FavoriteService_FavoriteAction_Handler,
 		},
 		{
 			MethodName: "FavoriteList",
-			Handler:    _UserService_FavoriteList_Handler,
+			Handler:    _FavoriteService_FavoriteList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -47,3 +47,8 @@ PublishRpcConf:
       - 127.0.0.1:2379
     Key: publish.rpc
 
+FavoriteRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: favorite.rpc
