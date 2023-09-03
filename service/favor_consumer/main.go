@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"sync"
 	"tiny-tiktok/service/favor_consumer/internal/model"
@@ -41,19 +42,21 @@ func NewDBInstance() {
 }
 
 func main() {
-
 	NewRdsInstance()
-	NewRdsInstance()
+	model.NewDBDao()
 	ctx := context.Background()
 
 	logc.Info(ctx, "favor_consumer start!")
 	for {
-		stream := rdsCli.XRead(ctx, &redis.XReadArgs{
+		streams := rdsCli.XRead(ctx, &redis.XReadArgs{
 			Streams: []string{favorStream, "0"},
 			Count:   1,
 			Block:   0,
-		}).Val()[0]
-		for _, msg := range stream.Messages {
+		}).Val()
+		if len(streams) == 0 {
+			continue
+		}
+		for _, msg := range streams[0].Messages {
 			userIdStr, ok := msg.Values["userId"].(string)
 			if !ok {
 				logc.Alert(ctx, "userId interface conversion error")
@@ -87,7 +90,7 @@ func main() {
 				logc.Alert(ctx, "userId string conversion error")
 				break
 			}
-
+			fmt.Println("end conver")
 			err = model.Trans(ctx, userId, videoId, actionType)
 			if err != nil {
 				logc.Alert(ctx, "persistance error: "+err.Error())

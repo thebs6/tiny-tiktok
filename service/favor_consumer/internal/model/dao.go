@@ -22,24 +22,46 @@ func NewDBDao() *sqlx.SqlConn {
 	return &dbDao
 }
 
-func Trans(ctx context.Context, userId, videoId, actionType int64) error {
+func Trans(ctx context.Context, userId, videoId int64, actionType int64) error {
 	var increment = 1
-	var isFavorite = 1
+	var isFavorite int64 = 1
 	if actionType == 2 {
 		increment = -1
 		isFavorite = 0
 	}
 
 	err := dbDao.TransactCtx(context.Background(), func(ctx context.Context, session sqlx.Session) error {
-		query := "select * from `video` where `id` = ?"
+		query := "select * from favorite where `user_id` = ? and `video_id` = ?"
+		var favorite Favorite
+		err := session.QueryRowCtx(ctx, &favorite, query, userId, videoId)
+		if err == ErrNotFound {
+			query = "insert into favorite(`user_id`, `video_id`, `is_favorite`) values(?, ?, ?)"
+			_, err = session.ExecCtx(ctx, query, userId, videoId, isFavorite)
+			if err != nil {
+				return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
+			}
+		} else if err != nil {
+			return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
+		} else {
+			if favorite.IsFavorite == isFavorite {
+				return nil
+			}
+			query = "update favorite set is_favorite=? where `id`=?"
+			_, err = session.ExecCtx(ctx, query, isFavorite, favorite.Id)
+			if err != nil {
+				return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
+			}
+		}
+
+		query = "select * from `video` where `id` = ?"
 		var video Video
-		err := session.QueryRowCtx(ctx, &video, query, userId)
+		err = session.QueryRowCtx(ctx, &video, query, videoId)
 		if err != nil {
 			return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
 		}
 
 		query = "update video set `favorite_count`=`favorite_count`+? where `id` = ?"
-		_, err = session.ExecCtx(ctx, query, increment, userId)
+		_, err = session.ExecCtx(ctx, query, increment, videoId)
 		if err != nil {
 			return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
 		}
@@ -54,25 +76,6 @@ func Trans(ctx context.Context, userId, videoId, actionType int64) error {
 		_, err = session.ExecCtx(ctx, query, increment, userId)
 		if err != nil {
 			return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
-		}
-
-		query = "select * from favorite where `user_id` = ? and `video_id` = ?"
-		var favorite Favorite
-		err = session.QueryRowCtx(ctx, &favorite, query, userId, videoId)
-		if err == ErrNotFound {
-			query = "insert into favorite(`user_id`, `video_id`, `is_favorite`) values(?, ?, ?)"
-			_, err = session.ExecCtx(ctx, query, userId, videoId, isFavorite)
-			if err != nil {
-				return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
-			}
-		} else if err != nil {
-			return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
-		} else {
-			query = "update favorite set is_favorite=? where `id`=?"
-			_, err = session.ExecCtx(ctx, query, isFavorite, favorite.Id)
-			if err != nil {
-				return errors.New("\"" + query + "\"" + " in Trans error: " + err.Error())
-			}
 		}
 
 		return nil

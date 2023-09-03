@@ -11,7 +11,7 @@ func TestTrans(t *testing.T) {
 	type args struct {
 		userId     int64
 		videoId    int64
-		actionType int32
+		actionType int64
 	}
 
 	tests := []struct {
@@ -23,7 +23,7 @@ func TestTrans(t *testing.T) {
 		{
 			testName: "valid favor",
 			args: args{
-				userId:     1,
+				userId:     2,
 				videoId:    1,
 				actionType: 1,
 			},
