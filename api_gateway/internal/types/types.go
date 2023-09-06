@@ -30,11 +30,11 @@ type User struct {
 	FavoriteCount   int64  `json:"favorite_count,optional"`  // 喜欢数
 	FollowCount     int64  `json:"follow_count,optional"`    // 关注总数
 	FollowerCount   int64  `json:"follower_count,optional"`  // 粉丝总数
-	ID              int64  `json:"id"`                       // 用户id
+	Id              int64  `json:"id"`                       // 用户id
 	IsFollow        bool   `json:"is_follow"`                // true-已关注，false-未关注
 	Name            string `json:"name"`                     // 用户名称
 	Signature       string `json:"signature,optional"`       // 个人简介
-	TotalFavorited  int64 `json:"total_favorited,optional"` // 获赞数量
+	TotalFavorited  int64  `json:"total_favorited,optional"` // 获赞数量
 	WorkCount       int64  `json:"work_count,optional"`      // 作品数
 }
 
@@ -44,7 +44,7 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	Token      string `json:"token"`               // 用户鉴权token
 	UserID     int64  `json:"user_id"`             // 用户id
@@ -56,78 +56,77 @@ type RegisterReq struct {
 }
 
 type RegisterResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	Token      string `json:"token"`               // 用户鉴权token
 	UserID     int64  `json:"user_id"`             // 用户id
 }
 
 type UserInfoReq struct {
-	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	Token  string `json:"token"`   // 用户鉴权token
+	UserID int64  `json:"user_id"` // 用户id
 }
 
 type UserInfoResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	User       User   `json:"user"`                // 用户信息
 }
 
 type PublishActionReq struct {
 	Token string `form:"token,omitempty"` // 用户登录状态下设置
-	Data  []byte `form:"data"`
 	Title string `form:"title"`
 }
 
 type PublishActionResp struct {
-	StatusCode int64  `json:"status_code"`
+	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,optional"`
 }
 
 type PublishListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type PublishListResp struct {
-	StatusCode int64   `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg,optional"` // 返回状态描述
 	VideoList  []Video `json:"video_list"`          // 用户发布的视频列表
 }
 
 type FavoriteActionReq struct {
-	ActionType string `form:"action_type"` // 1-点赞，2-取消点赞
+	ActionType int32  `form:"action_type"` // 1-点赞，2-取消点赞
 	Token      string `form:"token"`       // 用户鉴权token
-	VideoID    string `form:"video_id"`    // 视频id
+	VideoID    int64  `form:"video_id"`    // 视频id
 }
 
 type FavoriteActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
 type FavoriteListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type FavoriteListResp struct {
-	StatusCode string  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg,optional"` // 返回状态描述
 	VideoList  []Video `json:"video_list"`          // 用户点赞视频列表
 }
 
 type CommentActionReq struct {
-	ActionType  string `form:"action_type"`           // 1-发布评论，2-删除评论
-	CommentID   string `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
+	ActionType  int32  `form:"action_type"`           // 1-发布评论，2-删除评论
+	CommentID   int64  `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
 	CommentText string `form:"comment_text,optional"` // 用户填写的评论内容，在action_type=1的时候使用
 	Token       string `form:"token"`                 // 用户鉴权token
-	VideoID     string `form:"video_id"`              // 视频id
+	VideoID     int64  `form:"video_id"`              // 视频id
 }
 
 type CommentActionResp struct {
 	Comment    Comment `json:"comment"`              // 评论成功返回评论内容，不需要重新拉取整个列表
-	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
 }
 
@@ -140,7 +139,7 @@ type Comment struct {
 
 type CommentListReq struct {
 	Token   string `form:"token,optional"` // 用户鉴权token
-	VideoID string `form:"video_id"`       // 视频id
+	VideoID int64  `form:"video_id"`       // 视频id
 }
 
 type CommentListResp struct {
@@ -156,7 +155,7 @@ type RelationActionReq struct {
 }
 
 type RelationActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
@@ -207,7 +206,7 @@ type MessageActionReq struct {
 }
 
 type MessageActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
@@ -230,5 +229,3 @@ type Message struct {
 	ID         int64  `json:"id"`                   // 消息id
 	ToUserID   int64  `json:"to_user_id"`           // 消息接收者id
 }
-
-

@@ -1,11 +1,13 @@
 package core
 
 import (
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+
 	"tiny-tiktok/api_gateway/internal/logic/core"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func LoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

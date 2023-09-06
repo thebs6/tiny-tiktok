@@ -2,16 +2,16 @@ package core
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
+	"time"
+
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/user/pb/user"
 
-	"github.com/zeromicro/go-zero/core/discov"
+	"github.com/golang-jwt/jwt"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type LoginLogic struct {
@@ -29,30 +29,68 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
-	// todo: add your logic here and delete this line
-	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
-		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
-			Key:   "user.rpc",
-		},
-	})
-	client := user.NewUserServiceClient(conn.Conn())
-	respRpc, err := client.Login(context.Background(), &user.LoginReq{
+	logc.Debug(l.ctx, "LoginLogic.Login req")
+	respRpc, err := l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
 		Username: req.Username,
 		Password: req.Password,
 	})
-	fmt.Println(req.Username, req.Password)
 	if err != nil {
-		log.Fatal(err)
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Login fail",
+			UserID:     respRpc.UserId, // is -1
+		}
+		logc.Alert(l.ctx, "call UserRpc failed"+err.Error())
+		err = nil
+		return
+	} else if respRpc.UserId == -1 {
+		// the username does not exsit or the password is incorrect
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  respRpc.StatusMsg,
+			UserID:     respRpc.UserId, // is -1
+		}
+		err = nil
+		return
+	}
+
+	secretKey := l.svcCtx.Config.Auth.AccessSecret
+	iat := time.Now().Unix() // maybe not word on Windows OS
+	seconds := l.svcCtx.Config.Auth.AccessExpire
+	payload := respRpc.UserId
+
+	token, err := getJwtToken(secretKey, iat, seconds, payload)
+	if err != nil {
+		resp = &types.LoginResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "Login fail",
+			UserID:     respRpc.UserId, // is -1
+		}
+		logc.Alert(l.ctx, "getJwtToken() "+err.Error())
+		err = nil
 		return
 	}
 
 	resp = &types.LoginResp{
 		StatusCode: http.StatusOK,
-		StatusMsg:  "login success",
+		StatusMsg:  respRpc.StatusMsg,
 		UserID:     respRpc.UserId,
-		Token:      "token",
+		Token:      token,
 	}
 
 	return
+}
+
+// @secretKey: JWT 加解密密钥
+// @iat: 时间戳
+// @seconds: 过期时间，单位秒
+// @payload: 数据载体
+func getJwtToken(secretKey string, iat, seconds, payload int64) (string, error) {
+	claims := make(jwt.MapClaims)
+	claims["exp"] = iat + seconds
+	claims["iat"] = iat
+	claims["payload"] = payload
+	token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = claims
+	return token.SignedString([]byte(secretKey))
 }

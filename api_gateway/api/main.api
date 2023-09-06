@@ -63,7 +63,7 @@ service service {
 	get /favorite/list (FavoriteListReq) returns (FavoriteListResp)
 
 	@handler CommentAction
-	get /comment/action (CommentActionReq) returns (CommentActionResp)
+	post /comment/action (CommentActionReq) returns (CommentActionResp)
 }
 
 @server (
@@ -72,7 +72,7 @@ service service {
 )
 service service {
 	@handler CommentList
-	get /comment/list (CommentListReq) returns (CommentListResp)
+	post /comment/list (CommentListReq) returns (CommentListResp)
 }
 
 @server (

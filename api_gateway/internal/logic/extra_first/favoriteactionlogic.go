@@ -2,9 +2,14 @@ package extra_first
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/logx"
+	"encoding/json"
+	"net/http"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
+	"tiny-tiktok/service/favorite/pb/favorite"
+
+	"github.com/zeromicro/go-zero/core/logc"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type FavoriteActionLogic struct {
@@ -22,7 +27,29 @@ func NewFavoriteActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Fa
 }
 
 func (l *FavoriteActionLogic) FavoriteAction(req *types.FavoriteActionReq) (resp *types.FavoriteActionResp, err error) {
-	// todo: add your logic here and delete this line
+	uid, err := l.ctx.Value("payload").(json.Number).Int64()
+	if err != nil {
+		logc.Debugf(l.ctx, "payload.(string) failed")
+		return &types.FavoriteActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "点赞失败!",
+		}, nil
+	}
 
-	return
+	respRpc, err := l.svcCtx.FavoriteRpc.FavoriteAction(l.ctx, &favorite.FavoriteActionReq{
+		VideoId:    req.VideoID,
+		UserId:     uid,
+		ActionType: req.ActionType,
+	})
+	if err != nil {
+		logc.Alert(l.ctx, "rpc favoriteaction failed, err: "+err.Error())
+		return &types.FavoriteActionResp{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "点赞失败!",
+		}, nil
+	}
+	return &types.FavoriteActionResp{
+		StatusCode: respRpc.StatusCode,
+		StatusMsg:  "点赞成功!",
+	}, nil
 }
