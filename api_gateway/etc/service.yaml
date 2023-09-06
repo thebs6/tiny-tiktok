@@ -52,3 +52,9 @@ CommentRpcConf:
     Hosts:
       - 127.0.0.1:2379
     Key: comment.rpc
+    
+FavoriteRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: favorite.rpc

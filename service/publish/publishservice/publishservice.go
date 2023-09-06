@@ -19,10 +19,13 @@ type (
 	PublishListResp   = publish.PublishListResp
 	User              = publish.User
 	Video             = publish.Video
+	VideoListReq      = publish.VideoListReq
+	VideoListResp     = publish.VideoListResp
 
 	PublishService interface {
 		PublishAction(ctx context.Context, in *PublishActionReq, opts ...grpc.CallOption) (*PublishActionResp, error)
 		PublishList(ctx context.Context, in *PublishListReq, opts ...grpc.CallOption) (*PublishListResp, error)
+		VideoList(ctx context.Context, in *VideoListReq, opts ...grpc.CallOption) (*VideoListResp, error)
 	}
 
 	defaultPublishService struct {
@@ -44,4 +47,9 @@ func (m *defaultPublishService) PublishAction(ctx context.Context, in *PublishAc
 func (m *defaultPublishService) PublishList(ctx context.Context, in *PublishListReq, opts ...grpc.CallOption) (*PublishListResp, error) {
 	client := publish.NewPublishServiceClient(m.cli.Conn())
 	return client.PublishList(ctx, in, opts...)
+}
+
+func (m *defaultPublishService) VideoList(ctx context.Context, in *VideoListReq, opts ...grpc.CallOption) (*VideoListResp, error) {
+	client := publish.NewPublishServiceClient(m.cli.Conn())
+	return client.VideoList(ctx, in, opts...)
 }

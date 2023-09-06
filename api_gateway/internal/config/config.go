@@ -29,8 +29,9 @@ type Config struct {
 		SecretId  string
 		SecretKey string
 	}
-	FeedRpcConf    zrpc.RpcClientConf
-	UserRpcConf    zrpc.RpcClientConf
-	PublishRpcConf zrpc.RpcClientConf
-	CommentRpcConf zrpc.RpcClientConf
+	FeedRpcConf     zrpc.RpcClientConf
+	UserRpcConf     zrpc.RpcClientConf
+	PublishRpcConf  zrpc.RpcClientConf
+	CommentRpcConf  zrpc.RpcClientConf
+	FavoriteRpcConf zrpc.RpcClientConf
 }

@@ -14,7 +14,7 @@ type (
 	// and implement the added methods in customVideoModel.
 	VideoModel interface {
 		videoModel
-		List(ctx context.Context, userid int64) ([]*Video, error)
+		ListByUserId(ctx context.Context, videoId int64) ([]*Video, error)
 	}
 
 	customVideoModel struct {
@@ -29,10 +29,10 @@ func NewVideoModel(conn sqlx.SqlConn) VideoModel {
 	}
 }
 
-func (c *customVideoModel) List(ctx context.Context, userid int64) ([]*Video, error) {
+func (c *customVideoModel) ListByUserId(ctx context.Context, userId int64) ([]*Video, error) {
 	var videos []*Video
 	query := fmt.Sprintf("select %s from %s where author = ? and deleted_at IS NULL", videoRows, c.table)
-	err := c.conn.QueryRowsCtx(ctx, &videos, query, userid)
+	err := c.conn.QueryRowsCtx(ctx, &videos, query, userId)
 	if err != nil {
 		return nil, err
 	} else {
