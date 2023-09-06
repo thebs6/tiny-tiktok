@@ -190,7 +190,7 @@ type RelationFollowerListResp struct {
 
 type RelationFriendListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64 `form:"user_id"` // 用户id
 }
 
 type RelationFriendListResp struct {
