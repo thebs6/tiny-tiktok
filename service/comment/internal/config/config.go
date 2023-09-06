@@ -19,4 +19,5 @@ type Config struct {
 		Tls  bool   `json:",optional"`
 		DB   int
 	}
+	UserRpcConf zrpc.RpcClientConf
 }

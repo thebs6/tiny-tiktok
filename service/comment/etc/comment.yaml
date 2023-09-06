@@ -19,3 +19,10 @@ RedisConf:
   Pass: ""
   Tls:  false
   DB:   0
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+  NonBlock: true

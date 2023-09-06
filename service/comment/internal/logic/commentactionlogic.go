@@ -7,6 +7,7 @@ import (
 	"tiny-tiktok/service/comment/internal/model"
 	"tiny-tiktok/service/comment/internal/svc"
 	"tiny-tiktok/service/comment/pb/comment"
+	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -70,13 +71,30 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 				Comment:   nil,
 			}, err
 		}
-		// TODO(gcx): change to Microservice api
-		user := queryUserById(in.UserId)
+
+		// user := queryUserById(in.UserId)
+		respRpc, err := l.svcCtx.UserRpc.UserInfo(l.ctx, &user.UserInfoReq{
+			UserId: in.UserId,
+		})
+		if err != nil {
+			logc.Alert(l.ctx, err.Error())
+		}
 		return &comment.CommentActionResp{
 			StatusMsg: "Comment successfully",
 			Comment: &comment.Comment{
-				Id:         comment_id,
-				User:       user,
+				Id: comment_id,
+				User: &comment.User{
+					Id:              respRpc.User.Id,
+					FollowCount:     respRpc.User.FollowCount,
+					FollowerCount:   respRpc.User.FollowCount,
+					IsFollow:        respRpc.User.IsFollow,
+					Avatar:          respRpc.User.Avatar,
+					BackgroundImage: respRpc.User.BackgroundImage,
+					Signature:       respRpc.User.Signature,
+					TotalFavorited:  respRpc.User.TotalFavorited,
+					WorkCount:       respRpc.User.WorkCount,
+					FavoriteCount:   respRpc.User.FavoriteCount,
+				},
 				Content:    in.CommentText,
 				CreateDate: time.Now().Format("01-02"),
 			},
