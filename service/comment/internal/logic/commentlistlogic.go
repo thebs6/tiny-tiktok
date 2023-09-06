@@ -27,11 +27,13 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.CommentListResp, error) {
 	var comments []*comment.Comment
 
-	exist, err := l.svcCtx.CommentRedis.Exists(l.ctx, in.VideoId)
+	exist, errRds := l.svcCtx.CommentRedis.Exists(l.ctx, in.VideoId)
 
 	// redis error and get comment list from db
-	if err != nil {
-		logc.Alert(l.ctx, err.Error())
+	if errRds != nil || exist == 0 {
+		if errRds != nil {
+			logc.Alert(l.ctx, errRds.Error())
+		}
 
 		commentList, err := l.svcCtx.CommentModel.List(l.ctx, in.VideoId)
 		if err != nil {
@@ -50,6 +52,11 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 		// TODO(gcx): change to Microservice api
 		queryUsersByIds(userIdList, userList)
 
+		if errRds == nil && exist == 0 {
+			err = l.svcCtx.CommentRedis.ZAddList(l.ctx, in.VideoId, commentList)
+			logc.Alert(l.ctx, "Failed to write commentList in redis"+err.Error())
+		}
+
 		for i, respComment := range commentList {
 			comments = append(comments, &comment.Comment{
 				Id:         respComment.Id,
@@ -58,6 +65,7 @@ func (l *CommentListLogic) CommentList(in *comment.CommentListReq) (*comment.Com
 				CreateDate: respComment.CreatedAt.Format("01-02"),
 			})
 		}
+
 	} else if exist == 1 {
 		commentList, err := l.svcCtx.CommentRedis.ZRevRangeWithScores(l.ctx, in.VideoId)
 		if err != nil {

@@ -11,7 +11,7 @@ DB:
 LogConf:
   ServiceName: "comment"
   Mode: "file"
-  Path: "../../logs"
+  Path: "service/comment/logs"
   
 RedisConf:
   Host: "127.0.0.1:6379"

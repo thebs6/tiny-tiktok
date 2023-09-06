@@ -35,8 +35,17 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			UserId:  in.UserId,
 			Content: in.CommentText,
 		}
+		// delete the cache first time
+		err := l.svcCtx.CommentRedis.Del(l.ctx, in.VideoId)
+		if err != nil {
+			logc.Alert(l.ctx, err.Error())
+			return &comment.CommentActionResp{
+				StatusMsg: "Failed to comment",
+				Comment:   nil,
+			}, err
+		}
 		var comment_id int64
-		err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+		err = l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 			// insert the record into mysql
 			res, err := l.svcCtx.CommentModel.TransInsert(l.ctx, session, data)
 			if err != nil {
@@ -44,45 +53,23 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			}
 
 			comment_id, err = res.LastInsertId()
-			if err != nil {
+			if err == nil {
 				return err
 			}
 
-			// // 1.Inset into redis after successing to insert into mysql
-			// // 2.The created_at is a little bit later than the created_at in mysql.
-			// // "commentlist" api just response the month-day to the client so it does not matter at most time.
-			// // However, if the comment is published at 23:59:59, the "commentlist" api maybe response the next day
-			// // Futhermore, this implementation will have us can not delete the record from the redis.
-			// data.CreatedAt = time.Now()
-			// err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
-
-			// To solve the problems which are led by the different time, we query mysql.
-			// Unluckly, this implementation will hurt the performance of our system
-			data, err = l.svcCtx.CommentModel.TransFindone(l.ctx, session, comment_id)
-			if err != nil {
-				return err
-			}
-
-			// insert the record into redis
-			err = l.svcCtx.CommentRedis.ZAdd(l.ctx, in.VideoId, time.Now().Unix(), data)
-			// mysql rollback if failed to insert into redis
-			if err != nil {
-				return err
-			}
-
-			return nil
+			// delete the cache second time
+			time.Sleep(time.Duration(500 * time.Millisecond))
+			err = l.svcCtx.CommentRedis.Del(l.ctx, in.VideoId)
+			return err
 		})
 
-		// transaction fails
 		if err != nil {
 			logc.Alert(l.ctx, err.Error())
-
 			return &comment.CommentActionResp{
 				StatusMsg: "Failed to comment",
 				Comment:   nil,
 			}, err
 		}
-
 		// TODO(gcx): change to Microservice api
 		user := queryUserById(in.UserId)
 		return &comment.CommentActionResp{
@@ -100,13 +87,13 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 	// TODO(gcx): whether we should judge the comment which is going to be deleted
 	// is publish by the user who try to delete it?
 
-	// get the comment from mysql and delete it from redis
-
+	// delete the cache first time
+	l.svcCtx.CommentRedis.Del(l.ctx, in.VideoId)
 	err := l.svcCtx.CommentModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		// Get the comment from db before soft deleting it.
 		// Because once we set the deleted_at, the record in db will be different from the record in redis,
 		// and we will be unable to remove the record from redis.
-		resp, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
+		_, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.CommentId)
 		if err != nil {
 			return err
 		}
@@ -117,15 +104,12 @@ func (l *CommentActionLogic) CommentAction(in *comment.CommentActionReq) (*comme
 			return err
 		}
 
-		// Remove the record from redis after successing to soft delete the record in db.
-		// If we fail to remove the record from redis, we will rollback the soft delete operation.
-		err = l.svcCtx.CommentRedis.ZRem(l.ctx, in.VideoId, resp)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		// delete the cache second time
+		time.Sleep(time.Duration(500 * time.Millisecond))
+		err = l.svcCtx.CommentRedis.Del(l.ctx, in.VideoId)
+		return err
 	})
+
 	if err != nil {
 		return &comment.CommentActionResp{
 			StatusMsg: "Failed to delete the comment",

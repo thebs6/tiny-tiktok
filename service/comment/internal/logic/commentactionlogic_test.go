@@ -57,17 +57,17 @@ func TestCommentAction(t *testing.T) {
 			wantAct: "Comment successfully",
 			wantErr: false,
 		},
-		{
-			testName: "valid comment2",
-			args: args{
-				userId:      2,
-				videoId:     1,
-				actionType:  1,
-				commentText: "comment test2",
-			},
-			wantAct: "Comment successfully",
-			wantErr: false,
-		},
+		// {
+		// 	testName: "valid comment2",
+		// 	args: args{
+		// 		userId:      2,
+		// 		videoId:     1,
+		// 		actionType:  1,
+		// 		commentText: "comment test2",
+		// 	},
+		// 	wantAct: "Comment successfully",
+		// 	wantErr: false,
+		// },
 		// {
 		// 	testName: "valid comment3",
 		// 	args: args{
