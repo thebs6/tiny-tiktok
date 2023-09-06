@@ -11,7 +11,7 @@ type ServiceContext struct {
 	Config config.Config
 	RelationModel model.RelationModel
 	UserModel model.UserModel
-
+	MessageModel model.MessageModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -19,5 +19,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config: c,
 		RelationModel: model.NewRelationModel(sqlx.NewMysql(c.DB.DataSource)),
 		UserModel: model.NewUserModel(sqlx.NewMysql(c.DB.DataSource)),
+		MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DB.DataSource)),
 	}
 }
