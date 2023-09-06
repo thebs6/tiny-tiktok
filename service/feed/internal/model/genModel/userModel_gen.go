@@ -24,11 +24,9 @@ var (
 
 type (
 	userModel interface {
-		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByUsername(ctx context.Context, username string) (*User, error)
-		Update(ctx context.Context, data *User) error
-		Delete(ctx context.Context, id int64) error
+
 	}
 
 	defaultUserModel struct {
@@ -62,11 +60,7 @@ func newUserModel(conn sqlx.SqlConn) *defaultUserModel {
 	}
 }
 
-func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
-}
+
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
 	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
@@ -96,17 +90,6 @@ func (m *defaultUserModel) FindOneByUsername(ctx context.Context, username strin
 	}
 }
 
-func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.Password, data.FollowCount, data.FollowerCount, data.DeletedAt, data.IsFollow, data.Avatar, data.BackgroundImage, data.Signature, data.TotalFavorited, data.WorkCount, data.FavoriteCount)
-	return ret, err
-}
-
-func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.Password, newData.FollowCount, newData.FollowerCount, newData.DeletedAt, newData.IsFollow, newData.Avatar, newData.BackgroundImage, newData.Signature, newData.TotalFavorited, newData.WorkCount, newData.FavoriteCount, newData.Id)
-	return err
-}
 
 func (m *defaultUserModel) tableName() string {
 	return m.table
