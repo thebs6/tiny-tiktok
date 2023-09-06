@@ -32,5 +32,5 @@ type Config struct {
 	FeedRpcConf    zrpc.RpcClientConf
 	UserRpcConf    zrpc.RpcClientConf
 	PublishRpcConf zrpc.RpcClientConf
-	Comment        zrpc.RpcClientConf
+	CommentRpcConf zrpc.RpcClientConf
 }

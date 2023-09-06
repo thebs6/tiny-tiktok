@@ -12,9 +12,10 @@ import (
 
 	"tiny-tiktok/api_gateway/internal/redis_model"
 
+	"tiny-tiktok/service/comment/pb/comment"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/tencentyun/cos-go-sdk-v5"
-	"tiny-tiktok/service/comment/pb/comment"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -26,7 +27,7 @@ type ServiceContext struct {
 	FeedRpc    feed.FeedServiceClient
 	UserRpc    userservice.UserService
 	PublishRpc publish.PublishServiceClient
-	Comment    comment.CommentServiceClient
+	CommentRpc comment.CommentServiceClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -50,6 +51,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		FeedRpc:    feed.NewFeedServiceClient(zrpc.MustNewClient(c.FeedRpcConf).Conn()),
 		UserRpc:    user.NewUserServiceClient(zrpc.MustNewClient(c.UserRpcConf).Conn()),
 		PublishRpc: publish.NewPublishServiceClient(zrpc.MustNewClient(c.PublishRpcConf).Conn()),
-		Comment:    comment.NewCommentServiceClient(zrpc.MustNewClient(c.Comment).Conn()),
+		CommentRpc: comment.NewCommentServiceClient(zrpc.MustNewClient(c.CommentRpcConf).Conn()),
 	}
 }

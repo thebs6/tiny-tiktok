@@ -45,7 +45,7 @@ func (l *CommentActionLogic) CommentAction(req *types.CommentActionReq) (resp *t
 		}, nil
 	}
 
-	respRpc, err := l.svcCtx.Comment.CommentAction(l.ctx, &comment.CommentActionReq{
+	respRpc, err := l.svcCtx.CommentRpc.CommentAction(l.ctx, &comment.CommentActionReq{
 		UserId:      uid,
 		VideoId:     req.VideoID,
 		ActionType:  req.ActionType,
