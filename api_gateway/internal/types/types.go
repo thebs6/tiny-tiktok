@@ -117,11 +117,11 @@ type FavoriteListResp struct {
 }
 
 type CommentActionReq struct {
-	ActionType  string `form:"action_type"`           // 1-发布评论，2-删除评论
-	CommentID   string `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
+	ActionType  int32  `form:"action_type"`           // 1-发布评论，2-删除评论
+	CommentID   int64  `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
 	CommentText string `form:"comment_text,optional"` // 用户填写的评论内容，在action_type=1的时候使用
 	Token       string `form:"token"`                 // 用户鉴权token
-	VideoID     string `form:"video_id"`              // 视频id
+	VideoID     int64  `form:"video_id"`              // 视频id
 }
 
 type CommentActionResp struct {
@@ -139,7 +139,7 @@ type Comment struct {
 
 type CommentListReq struct {
 	Token   string `form:"token,optional"` // 用户鉴权token
-	VideoID string `form:"video_id"`       // 视频id
+	VideoID int64  `form:"video_id"`       // 视频id
 }
 
 type CommentListResp struct {

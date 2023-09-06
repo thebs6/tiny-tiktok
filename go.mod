@@ -8,6 +8,7 @@ require (
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
 	github.com/u2takey/ffmpeg-go v0.5.0
+	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	github.com/zeromicro/go-zero v1.5.4
 	golang.org/x/crypto v0.11.0
 	golang.org/x/sync v0.2.0
