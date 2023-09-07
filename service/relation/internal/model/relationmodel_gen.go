@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/Masterminds/squirrel"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type (
 		Update(ctx context.Context, data *Relation) error
 		Delete(ctx context.Context, id int64) error
 		FindRelationByTwoId(ctx context.Context, follow_id int64, follower_id int64) (*Relation, error)
+		FindFriendRelation(ctx context.Context, user_id int64) ([]*Relation, error)
 	}
 
 	defaultRelationModel struct {
@@ -105,6 +107,54 @@ func (m *defaultRelationModel) FindRelationByTwoId(ctx context.Context, follow_i
 		return &resp, nil
 	case sqlc.ErrNotFound:
 		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultRelationModel)FindFriendRelation(ctx context.Context, user_id int64) ([]*Relation, error) {
+	builder := squirrel.SelectBuilder{}
+	builder = builder.Columns(relationRows)
+	builder = builder.From(m.table).Where("follow_id = ?", user_id)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp1 []*Relation
+	err = m.conn.QueryRowCtx(ctx, &resp1, query, args...)
+
+	builder = squirrel.SelectBuilder{}
+	builder = builder.Columns(relationRows)
+	builder = builder.From(m.table).Where("follow_id = ?", user_id)
+
+	query, args, err = builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp2 []*Relation
+	err = m.conn.QueryRowCtx(ctx, &resp1, query, args...)
+
+	resp1Map := make(map[int64]bool)
+	for _, relation := range resp1 {
+		resp1Map[relation.FollowId] = true
+	}
+
+	// 创建一个切片来存储交集结果
+	var intersection []*Relation
+
+	// 遍历 resp2，检查元素是否也在 resp1 中
+	for _, relation := range resp2 {
+		if resp1Map[relation.FollowerId] {
+			intersection = append(intersection, relation)
+		}
+	}
+
+	switch err {
+	case nil:
+		return intersection, nil
 	default:
 		return nil, err
 	}
