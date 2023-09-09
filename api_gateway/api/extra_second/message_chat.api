@@ -5,6 +5,7 @@ import "message.api"
 type MessageChatReq {
 	ToUserID string `form:"to_user_id"` // 对方用户id
 	Token    string `form:"token"`      // 用户鉴权token
+	PreMsgTime    string `form:"pre_msg_time"`      // 用户鉴权token
 }
 
 type MessageChatResp {

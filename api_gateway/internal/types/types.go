@@ -211,9 +211,9 @@ type MessageActionResp struct {
 }
 
 type MessageChatReq struct {
-	ToUserID string `form:"to_user_id"` // 对方用户id
-	Token    string `form:"token"`      // 用户鉴权token
-	PreMsgTime string `form:"pre_msg_time"` //上次最新消息的时间（新增字段-apk更新中）
+	ToUserID   string `form:"to_user_id"`   // 对方用户id
+	Token      string `form:"token"`        // 用户鉴权token
+	PreMsgTime string `form:"pre_msg_time"` // 用户鉴权token
 }
 
 type MessageChatResp struct {
@@ -224,7 +224,7 @@ type MessageChatResp struct {
 
 type Message struct {
 	Content    string `json:"content"`              // 消息内容
-	CreateTime string  `json:"create_time,optional"` // 消息发送时间 yyyy-MM-dd HH:MM:ss
+	CreateTime int64  `json:"create_time,optional"` // 消息发送时间 yyyy-MM-dd HH:MM:ss
 	FromUserID int64  `json:"from_user_id"`         // 消息发送者id
 	ID         int64  `json:"id"`                   // 消息id
 	ToUserID   int64  `json:"to_user_id"`           // 消息接收者id
