@@ -4,6 +4,10 @@ import (
 	"net/http"
 	"net/url"
 	"tiny-tiktok/api_gateway/internal/config"
+	"tiny-tiktok/service/favorite/pb/favorite"
+	"tiny-tiktok/service/feed/pb/feed"
+	"tiny-tiktok/service/relation/relation"
+	"tiny-tiktok/service/relation/relationservice"
 	"tiny-tiktok/service/user/pb/user"
 	"tiny-tiktok/service/user/userservice"
 
@@ -20,7 +24,7 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
+	Config      config.Config
 	RelationRpc relationservice.Service
 	Redis       redis_model.RedisModel
 	CosClient   *cos.Client

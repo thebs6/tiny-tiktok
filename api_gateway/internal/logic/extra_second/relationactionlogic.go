@@ -2,6 +2,7 @@ package extra_second
 
 import (
 	"context"
+	"net/http"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
@@ -34,14 +35,15 @@ func (l *RelationActionLogic) RelationAction(req *types.RelationActionReq) (resp
 	})
 
 	if err != nil {
+		logx.Error(err)
 		return &types.RelationActionResp{
-			StatusMsg:  "RPC调用错误",
-			StatusCode: 1401,
+			StatusCode: http.StatusInternalServerError,
+			StatusMsg:  "fail!",
 		}, err
 	}
 
 	return &types.RelationActionResp{
 		StatusMsg:  RpcResp.StatusMsg,
-		StatusCode: 200,
+		StatusCode: http.StatusOK,
 	}, nil
 }

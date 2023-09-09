@@ -2,6 +2,8 @@ package extra_second
 
 import (
 	"context"
+	"net/http"
+	"strconv"
 
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
@@ -28,37 +30,37 @@ func (l *RelationFollowerListLogic) RelationFollowerList(req *types.RelationFoll
 	// todo: add your logic here and delete this line
 	rpcResp, err := l.svcCtx.RelationRpc.FollowerList(l.ctx, &relation.FollowerListRequest{
 		UserId: req.UserID,
-		Token: req.Token,
+		Token:  req.Token,
 	})
 
 	var userList []types.User
 	if err != nil {
+		logx.Error(err)
 		return &types.RelationFollowerListResp{
-			StatusCode: "4401",
-			StatusMsg: "粉丝查询rpc错误",
-			UserList: userList,
-		}, nil
+			StatusCode: strconv.Itoa(http.StatusInternalServerError),
+			StatusMsg:  "fail!",
+		}, err
 	}
 
-	for _, user := range(rpcResp.UserList) {
+	for _, user := range rpcResp.UserList {
 		userList = append(userList, types.User{
-			Id: user.Id,
-			Avatar: user.Avatar,
+			Id:              user.Id,
+			Avatar:          user.Avatar,
 			BackgroundImage: user.BackgroundImage,
-			FavoriteCount: user.FavoriteCount,
-			FollowCount: user.FollowCount,
-			FollowerCount: user.FollowerCount,
-			IsFollow: user.IsFollow,
-			Name: user.Name,
-			Signature: user.Signature,
-			TotalFavorited: user.TotalFavorited,
-			WorkCount: user.WorkCount,
+			FavoriteCount:   user.FavoriteCount,
+			FollowCount:     user.FollowCount,
+			FollowerCount:   user.FollowerCount,
+			IsFollow:        user.IsFollow,
+			Name:            user.Name,
+			Signature:       user.Signature,
+			TotalFavorited:  user.TotalFavorited,
+			WorkCount:       user.WorkCount,
 		})
 	}
 
 	return &types.RelationFollowerListResp{
-		StatusCode: "4000",
-		StatusMsg: "查询成功",
-		UserList: userList,
+		StatusCode: strconv.Itoa(http.StatusOK),
+		StatusMsg:  "success",
+		UserList:   userList,
 	}, nil
 }

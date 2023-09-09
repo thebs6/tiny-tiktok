@@ -2,6 +2,8 @@ package extra_second
 
 import (
 	"context"
+	"net/http"
+	"strconv"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/relation/relation"
@@ -31,9 +33,10 @@ func (l *RelationFriendListLogic) RelationFriendList(req *types.RelationFriendLi
 	})
 
 	if err != nil {
-		resp.StatusCode = "4040"
-		resp.StatusMsg = "rpc调用错误"
-		return
+		logx.Error(err)
+		resp.UserList = nil
+		resp.StatusCode = strconv.Itoa(http.StatusInternalServerError)
+		resp.StatusMsg = "fail"
 	}
 
 	var respUser []types.User
@@ -53,7 +56,7 @@ func (l *RelationFriendListLogic) RelationFriendList(req *types.RelationFriendLi
 		})
 	}
 	resp.UserList = respUser
-	resp.StatusCode = "4200"
+	resp.StatusCode = strconv.Itoa(http.StatusOK)
 	resp.StatusMsg = "success"
 	return
 }

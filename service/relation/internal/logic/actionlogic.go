@@ -29,10 +29,8 @@ func NewActionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ActionLogi
 
 func (l *ActionLogic) Action(in *relation.ActionRequest) (*relation.ActionResponse, error) {
 	// todo: add your logic here and delete this line
-	// userId := ctxdata.GetUidFromCtx(l.ctx)
-	var userId int64
-	userId = 6
-	fromUser, err := l.svcCtx.UserModel.FindOne(l.ctx, userId) 
+	userId := in.UserId
+	fromUser, err := l.svcCtx.UserModel.FindOne(l.ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -47,13 +45,13 @@ func (l *ActionLogic) Action(in *relation.ActionRequest) (*relation.ActionRespon
 	if err != nil && err == sqlx.ErrNotFound {
 		return &relation.ActionResponse{
 			StatusCode: 4401,
-			StatusMsg: "用户不存在",
+			StatusMsg:  "用户不存在",
 		}, err
 	}
 
 	switch in.ActionType {
 	// 关注
-	case 1 : 
+	case 1:
 		resp, err := l.Follow(fromUser, toUser)
 		if err != nil {
 			return resp, err
@@ -67,10 +65,10 @@ func (l *ActionLogic) Action(in *relation.ActionRequest) (*relation.ActionRespon
 	default:
 		return &relation.ActionResponse{
 			StatusCode: 4004,
-			StatusMsg: "错误操作",
+			StatusMsg:  "错误操作",
 		}, nil
 	}
-	
+
 	return &relation.ActionResponse{}, nil
 }
 
@@ -82,16 +80,17 @@ func (l *ActionLogic) Follow(fromUser *model.User, toUser *model.User) (*relatio
 	if err != nil && err != sqlx.ErrNotFound {
 		return nil, err
 	}
-	
+
 	// 已经关注直接返回
 	if relationResp != nil {
+		logx.Info("已关注")
 		return &relation.ActionResponse{
 			StatusCode: 4402,
-			StatusMsg: "已关注",
+			StatusMsg:  "已关注",
 		}, nil
 	}
 
-	// 未关注则关注同时更新双方关注数量 
+	// 未关注则关注同时更新双方关注数量
 	var newRelation model.Relation
 	newRelation.FollowerId = fromUserId
 	newRelation.FollowId = toUserId
@@ -120,16 +119,15 @@ func (l *ActionLogic) UnFollow(fromUser *model.User, toUser *model.User) (*relat
 		return nil, err
 	}
 
-	
 	// 未关注直接返回
 	if err != nil && err == sqlx.ErrNotFound || relationResp == nil {
 		return &relation.ActionResponse{
 			StatusCode: 4402,
-			StatusMsg: "已关注",
+			StatusMsg:  "已关注",
 		}, nil
 	}
 
-	// 关注则取关，同时更新双方关注数量 
+	// 关注则取关，同时更新双方关注数量
 	err = l.svcCtx.RelationModel.Delete(l.ctx, relationResp.Id)
 	if err != nil {
 		return nil, err

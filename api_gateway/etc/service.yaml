@@ -58,3 +58,9 @@ FavoriteRpcConf:
     Hosts:
       - 127.0.0.1:2379
     Key: favorite.rpc
+
+RelationRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: relation.rpc
