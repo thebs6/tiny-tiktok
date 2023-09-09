@@ -29,8 +29,8 @@ var (
 	userRows                = strings.Join(userFieldNames, ",")
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-	userRowsWithOutPWD		= strings.Join(stringx.Remove(userFieldNames, "`password`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	userIdSet				= ""
+	userRowsWithOutPWD      = strings.Join(stringx.Remove(userFieldNames, "`password`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	userIdSet               = ""
 )
 
 type (
@@ -42,7 +42,6 @@ type (
 		Delete(ctx context.Context, id int64) error
 		FindFollowerList(ctx context.Context, id int64) ([]*User, error)
 		FindFollowList(ctx context.Context, id int64) ([]*User, error)
-		FindFriendList(ctx context.Context, id int64) ([]*User, error)
 	}
 
 	defaultUserModel struct {
@@ -134,17 +133,14 @@ func (m *defaultUserModel) tableName() string {
 }
 
 func (m *defaultUserModel) FindFollowerList(ctx context.Context, id int64) ([]*User, error) {
-	builder := squirrel.SelectBuilder{}
-	builder = builder.Columns(userRows)
-	builder = builder.From(m.table + " u").Join("relation r ON u.id = r.follower_id").Where("r.follow_id = ?", id)
-
-	query, args, err := builder.ToSql()
+	q := squirrel.Select("u.*").From(m.table+" u").Join("relation r ON u.id = r.follower_id").Where("r.follow_id = ?", id)
+	query, args, err := q.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
 	var resp []*User
-	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
+	err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
 
 	switch err {
 	case nil:
@@ -155,17 +151,15 @@ func (m *defaultUserModel) FindFollowerList(ctx context.Context, id int64) ([]*U
 }
 
 func (m *defaultUserModel) FindFollowList(ctx context.Context, id int64) ([]*User, error) {
-	builder := squirrel.SelectBuilder{}
-	builder = builder.Columns(userRows)
-	builder = builder.From(m.table + " u").Join("relation r ON u.id = r.follow_id").Where("r.follow_id = ?", id)
+	q := squirrel.Select("u.*").From(m.table+" u").Join("relation r ON u.id = r.follow_id").Where("r.follow_id = ?", id)
 
-	query, args, err := builder.ToSql()
+	query, args, err := q.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
 	var resp []*User
-	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
+	err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
 
 	switch err {
 	case nil:
@@ -175,40 +169,27 @@ func (m *defaultUserModel) FindFollowList(ctx context.Context, id int64) ([]*Use
 	}
 }
 
-func (m *defaultUserModel) FindFriendList(ctx context.Context, id int64) ([]*User, error) {
-	// query := `SELECT r1.*
-	// FROM relation AS r1
-	// INNER JOIN (
-	// 	SELECT follow_id
-	// 	FROM relation
-	// 	WHERE follower_id = ?
-	// ) AS following
-	// ON r1.follow_id = following.follow_id
-	// WHERE r1.follower_id = ?; 
-	// `
-	
-	// var relationResp []*Relation
-	// err := m.conn.QueryRowCtx(ctx, &relationResp, query, id, id)
-	rr := newRelationModel(m.conn)
-	relationResp, err := rr.FindFriendRelation(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp []*User
-	for _, r := range(relationResp) {
-		fid := r.FollowId
-		if fid == id {
-			fid = r.FollowerId
-		}
-
-		friend, err := m.FindOne(ctx, fid)
-		if err != nil {
-			return nil, err
-		}
-
-		resp = append(resp, friend)
-	}
-
-	return resp, nil
-}
+//func (m *defaultUserModel) FindFriendList(ctx context.Context, id int64) ([]*User, error) {
+//	rr := newRelationModel(m.conn)
+//	relationResp, err := rr.FindFriendRelation(ctx, id)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var resp []*User
+//	for _, r := range(relationResp) {
+//		fid := r.FollowId
+//		if fid == id {
+//			fid = r.FollowerId
+//		}
+//
+//		friend, err := m.FindOne(ctx, fid)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		resp = append(resp, friend)
+//	}
+//
+//	return resp, nil
+//}

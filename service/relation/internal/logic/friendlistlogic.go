@@ -2,11 +2,11 @@ package logic
 
 import (
 	"context"
-
-	"tiny-tiktok/service/relation/internal/svc"
-	"tiny-tiktok/service/relation/relation"
+	relationModel "tiny-tiktok/service/relation/internal/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"tiny-tiktok/service/relation/internal/svc"
+	"tiny-tiktok/service/relation/relation"
 )
 
 type FriendListLogic struct {
@@ -27,15 +27,33 @@ func (l *FriendListLogic) FriendList(in *relation.FriendListRequest) (*relation.
 	// todo: add your logic here and delete this line
 	userId := in.UserId
 
-	friendIdList, err := l.svcCtx.UserModel.FindFriendList(l.ctx, userId)
-
+	followResp, err := l.svcCtx.UserModel.FindFollowList(l.ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	followerResp, err := l.svcCtx.UserModel.FindFollowerList(l.ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	var respUserList []*relation.FriendUser
+	resp1Map := make(map[int64]bool)
+	for _, followUser := range followResp {
+		resp1Map[followUser.Id] = true
+	}
 
-	for _, friend := range friendIdList {
+	// 创建一个切片来存储交集结果
+	var friends []*relationModel.User
+
+	// 遍历 resp2，检查元素是否也在 resp1 中
+	for _, followerUser := range followerResp {
+		if resp1Map[followerUser.Id] {
+			friends = append(friends, followerUser)
+		}
+	}
+
+	var respUserList []*relation.FriendUser
+	//respUserList := make([]*relation.FriendUser)
+	for _, friend := range friends {
 		firstMsg, err := l.svcCtx.MessageModel.FindToUserFirstMsg(l.ctx, userId, friend.Id)
 		if err != nil {
 			return nil, err
