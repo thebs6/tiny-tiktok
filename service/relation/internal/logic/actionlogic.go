@@ -102,12 +102,22 @@ func (l *ActionLogic) Follow(fromUser *model.User, toUser *model.User) (*relatio
 	}
 
 	fromUser.FollowCount += 1
-	l.svcCtx.UserModel.Update(l.ctx, fromUser)
+
+	if err := l.svcCtx.UserModel.Update(l.ctx, fromUser); err != nil {
+		logx.Error(err)
+		return &relation.ActionResponse{}, nil
+	}
 
 	toUser.FollowerCount += 1
-	l.svcCtx.UserModel.Update(l.ctx, toUser)
+	if err := l.svcCtx.UserModel.Update(l.ctx, toUser); err != nil {
+		logx.Error(err)
+		return &relation.ActionResponse{}, nil
+	}
 
-	return &relation.ActionResponse{}, nil
+	return &relation.ActionResponse{
+		StatusMsg:  "follow success",
+		StatusCode: 4200,
+	}, nil
 }
 
 func (l *ActionLogic) UnFollow(fromUser *model.User, toUser *model.User) (*relation.ActionResponse, error) {
@@ -134,10 +144,21 @@ func (l *ActionLogic) UnFollow(fromUser *model.User, toUser *model.User) (*relat
 	}
 
 	fromUser.FollowCount -= 1
-	l.svcCtx.UserModel.Update(l.ctx, fromUser)
+
+	if err := l.svcCtx.UserModel.Update(l.ctx, fromUser); err != nil {
+		logx.Error(err)
+		return &relation.ActionResponse{}, nil
+	}
 
 	toUser.FollowerCount -= 1
-	l.svcCtx.UserModel.Update(l.ctx, toUser)
 
-	return &relation.ActionResponse{}, nil
+	if err := l.svcCtx.UserModel.Update(l.ctx, toUser); err != nil {
+		logx.Error(err)
+		return &relation.ActionResponse{}, nil
+	}
+
+	return &relation.ActionResponse{
+		StatusMsg:  "unfollow success",
+		StatusCode: 4200,
+	}, nil
 }
