@@ -2,7 +2,7 @@ Name: favorite.rpc
 ListenOn: 0.0.0.0:8081
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+  - etcd:2379
   Key: favorite.rpc
 
 DB:
@@ -23,5 +23,5 @@ LogConf:
 PublishRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: publish.rpc

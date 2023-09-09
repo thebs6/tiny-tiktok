@@ -31,7 +31,7 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 func (l *CommentListLogic) CommentList(req *types.CommentListReq) (resp *types.CommentListResp, err error) {
 	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
 		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
+			Hosts: []string{"etcd:2379"},
 			Key:   "comment.rpc",
 		},
 	})

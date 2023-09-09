@@ -44,7 +44,7 @@ func (l *FeedLogic) Feed(req *types.FeedReq) (resp *types.FeedResp, err error) {
 	// use etc/service.yaml instead
 	// conn := zrpc.MustNewClient(zrpc.RpcClientConf{
 	// 	Etcd: discov.EtcdConf{
-	// 		Hosts: []string{"127.0.0.1:2379"},
+	// 		Hosts: []string{"etcd:2379"},
 	// 		Key:   "feed.rpc",
 	// 	},
 	// })

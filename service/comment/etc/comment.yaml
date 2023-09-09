@@ -2,7 +2,7 @@ Name: comment.rpc
 ListenOn: 0.0.0.0:8080
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+  - etcd:2379
   Key: comment.rpc
   
 DB:
@@ -23,6 +23,6 @@ RedisConf:
 UserRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: user.rpc
   NonBlock: true

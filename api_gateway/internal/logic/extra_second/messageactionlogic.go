@@ -3,13 +3,14 @@ package extra_second
 import (
 	"context"
 	"encoding/json"
-	"github.com/zeromicro/go-zero/core/discov"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/zrpc"
 	"strconv"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/message/pb/message"
+
+	"github.com/zeromicro/go-zero/core/discov"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type MessageActionLogic struct {
@@ -43,7 +44,7 @@ func (l *MessageActionLogic) MessageAction(req *types.MessageActionReq) (resp *t
 
 	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
 		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
+			Hosts: []string{"etcd:2379"},
 			Key:   "message.rpc",
 		},
 	})

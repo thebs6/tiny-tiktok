@@ -1,11 +1,15 @@
 version: '3.5'
 
 networks:
-  tiny-tiktok_net:
+  tiktok_net:
     driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
 
 services: 
  tiny-tiktok:
+  # image: lyumikael/gomodd:v1.20.3
   build:
    context: .
    dockerfile: ./modd.DockerFile
@@ -13,40 +17,45 @@ services:
   environment:
    TZ: Asia/Shanghai
    GOPROXY: https://goproxy.cn,direct
-  working_dir: /tiny-tiktok
+  working_dir: /go/tiny-tiktok
   volumes:
    - .:/go/tiny-tiktok
   privileged: true
   restart: always
   networks:
-   - tiny-tiktok_net
+   - tiktok_net
   ports:
-   - "8888:8888"
-   - "8080:8080"
-   - "8081:8081"
-   - "8082:8082"
-   - "8083:8083"
-   - "8084:8084"
-   - "8085:8085"
-   - "8086:8086"
+   - 8888:8888
+   - 8080:8080
+   - 8081:8081
+   - 8082:8082
+   - 8083:8083
+   - 8084:8084
+   - 8085:8085
+   - 8086:8086
   depends_on:
    - etcd
    - redis
 
  etcd:
   image: bitnami/etcd:latest
+  container_name: etcd
   environment: 
    - TZ=Asia/Shanghai
    - ALLOW_NONE_AUTHENTICATION=yes
-   - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+  #  - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
   ports: 
-   - "2379:2379"
+   - 2379:2379
+  networks:
+   - tiktok_net
 
   # Redis
  redis:
   image: redis:7.0.12
   ports:
    - 6379:6379
-  # volumes:
-  #  - ./pkg/configs/redis/redis.conf:/etc/redis/redis.conf
-  # command: "redis-server /etc/redis/redis.conf"
+  networks:
+   - tiktok_net
+  volumes:
+   - ./pkg/configs/redis/redis.conf:/etc/redis/redis.conf
+  command: "redis-server /etc/redis/redis.conf"

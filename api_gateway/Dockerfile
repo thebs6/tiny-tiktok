@@ -14,7 +14,7 @@ ADD go.mod .
 ADD go.sum .
 RUN go mod download
 COPY . .
-# COPY api_gateway/etc /app/etc
+COPY api_gateway/etc /app/etc
 RUN go build -ldflags="-s -w" -o /app/service api_gateway/service.go
 
 
@@ -26,6 +26,6 @@ ENV TZ Asia/Shanghai
 
 WORKDIR /app
 COPY --from=builder /app/service /app/service
-# COPY --from=builder /app/etc /app/etc
+COPY --from=builder /app/etc /app/etc
 
 CMD ["./service", "-f", "etc/service.yaml"]

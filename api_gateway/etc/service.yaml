@@ -29,14 +29,14 @@ LogConf:
 FeedRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: feed.rpc
 
 
 UserRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: user.rpc
   NonBlock: true
 
@@ -44,17 +44,17 @@ UserRpcConf:
 PublishRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: publish.rpc
 
 CommentRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: comment.rpc
     
 FavoriteRpcConf:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: favorite.rpc

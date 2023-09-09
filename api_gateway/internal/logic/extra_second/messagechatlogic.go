@@ -3,15 +3,16 @@ package extra_second
 import (
 	"context"
 	"fmt"
-	"github.com/jinzhu/copier"
-	"github.com/zeromicro/go-zero/core/discov"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/zrpc"
 	"strconv"
 	"time"
 	"tiny-tiktok/api_gateway/internal/svc"
 	"tiny-tiktok/api_gateway/internal/types"
 	"tiny-tiktok/service/message/pb/message"
+
+	"github.com/jinzhu/copier"
+	"github.com/zeromicro/go-zero/core/discov"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type MessageChatLogic struct {
@@ -43,7 +44,7 @@ func (l *MessageChatLogic) MessageChat(req *types.MessageChatReq) (resp *types.M
 
 	conn := zrpc.MustNewClient(zrpc.RpcClientConf{
 		Etcd: discov.EtcdConf{
-			Hosts: []string{"127.0.0.1:2379"},
+			Hosts: []string{"etcd:2379"},
 			Key:   "message.rpc",
 		},
 	})
