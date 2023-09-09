@@ -47,7 +47,7 @@ service service {
 	post /publish/action (PublishActionReq) returns (PublishActionResp)
 
 	@handler PublishList
-	post /publish/list (PublishListReq) returns (PublishListResp)
+	get /publish/list (PublishListReq) returns (PublishListResp)
 }
 
 @server (
@@ -57,7 +57,7 @@ service service {
 )
 service service {
 	@handler FavoriteAction
-	get /favorite/action (FavoriteActionReq) returns (FavoriteActionResp)
+	post /favorite/action (FavoriteActionReq) returns (FavoriteActionResp)
 
 	@handler FavoriteList
 	get /favorite/list (FavoriteListReq) returns (FavoriteListResp)
@@ -72,7 +72,7 @@ service service {
 )
 service service {
 	@handler CommentList
-	post /comment/list (CommentListReq) returns (CommentListResp)
+	get /comment/list (CommentListReq) returns (CommentListResp)
 }
 
 @server (

@@ -47,7 +47,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: core.PublishActionHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
+				Method:  http.MethodGet,
 				Path:    "/publish/list",
 				Handler: core.PublishListHandler(serverCtx),
 			},
@@ -59,7 +59,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
+				Method:  http.MethodPost,
 				Path:    "/favorite/action",
 				Handler: extra_first.FavoriteActionHandler(serverCtx),
 			},
@@ -81,7 +81,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
+				Method:  http.MethodGet,
 				Path:    "/comment/list",
 				Handler: extra_first.CommentListHandler(serverCtx),
 			},

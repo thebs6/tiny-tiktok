@@ -59,7 +59,7 @@ func (l *MessageChatLogic) MessageChat(req *types.MessageChatReq) (resp *types.M
 	err = copier.Copy(&resp, &respRpc)
 	resp.StatusCode = "0"
 	if err != nil {
-		logx.Error(fmt.Sprintf("结构体复制错误+%s"), err)
+		logx.Error(fmt.Sprintf("结构体复制错误+%s", err))
 		return nil, err
 	}
 	return resp, nil
