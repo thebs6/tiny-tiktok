@@ -1,12 +1,12 @@
 syntax = "v1"
 
 type FavoriteActionReq {
-	ActionType string `form:"action_type"` // 1-点赞，2-取消点赞
+	ActionType int32 `form:"action_type"` // 1-点赞，2-取消点赞
 	Token      string `form:"token"`       // 用户鉴权token
-	VideoID    string `form:"video_id"`    // 视频id
+	VideoID    int64 `form:"video_id"`    // 视频id
 }
 
 type FavoriteActionResp {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }

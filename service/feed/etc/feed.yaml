@@ -1,0 +1,10 @@
+Name: feed.rpc
+ListenOn: 0.0.0.0:8081
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: feed.rpc
+Log:
+  Encoding: "plain"
+DB:
+  Datasource: "thebs:gogotiktok@tcp(124.71.9.116:3306)/gotiktok?charset=utf8&parseTime=True&loc=Local"

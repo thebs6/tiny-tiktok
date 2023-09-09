@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"tiny-tiktok/service/user/pb/user"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,6 +29,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
+	logc.Debug(l.ctx, "LoginLogic.Login req")
 	respRpc, err := l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
 		Username: req.Username,
 		Password: req.Password,
@@ -39,7 +40,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 			StatusMsg:  "Login fail",
 			UserID:     respRpc.UserId, // is -1
 		}
-		log.Fatal(err)
+		logc.Alert(l.ctx, "call UserRpc failed"+err.Error())
 		err = nil
 		return
 	} else if respRpc.UserId == -1 {
@@ -65,7 +66,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 			StatusMsg:  "Login fail",
 			UserID:     respRpc.UserId, // is -1
 		}
-		log.Fatal(err)
+		logc.Alert(l.ctx, "getJwtToken() "+err.Error())
 		err = nil
 		return
 	}

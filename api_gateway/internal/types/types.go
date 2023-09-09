@@ -8,7 +8,7 @@ type FeedReq struct {
 
 type FeedResp struct {
 	NextTime   int64   `json:"next_time"`            // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
-	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
 	VideoList  []Video `json:"video_list,optional"`  // 视频列表
 }
@@ -44,7 +44,7 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	Token      string `json:"token"`               // 用户鉴权token
 	UserID     int64  `json:"user_id"`             // 用户id
@@ -56,7 +56,7 @@ type RegisterReq struct {
 }
 
 type RegisterResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	Token      string `json:"token"`               // 用户鉴权token
 	UserID     int64  `json:"user_id"`             // 用户id
@@ -68,66 +68,65 @@ type UserInfoReq struct {
 }
 
 type UserInfoResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 	User       User   `json:"user"`                // 用户信息
 }
 
 type PublishActionReq struct {
 	Token string `form:"token,omitempty"` // 用户登录状态下设置
-	Data  []byte `form:"data"`
 	Title string `form:"title"`
 }
 
 type PublishActionResp struct {
-	StatusCode int64  `json:"status_code"`
+	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,optional"`
 }
 
 type PublishListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type PublishListResp struct {
-	StatusCode int64   `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg,optional"` // 返回状态描述
 	VideoList  []Video `json:"video_list"`          // 用户发布的视频列表
 }
 
 type FavoriteActionReq struct {
-	ActionType string `form:"action_type"` // 1-点赞，2-取消点赞
+	ActionType int32  `form:"action_type"` // 1-点赞，2-取消点赞
 	Token      string `form:"token"`       // 用户鉴权token
-	VideoID    string `form:"video_id"`    // 视频id
+	VideoID    int64  `form:"video_id"`    // 视频id
 }
 
 type FavoriteActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
 type FavoriteListReq struct {
 	Token  string `form:"token"`   // 用户鉴权token
-	UserID string `form:"user_id"` // 用户id
+	UserID int64  `form:"user_id"` // 用户id
 }
 
 type FavoriteListResp struct {
-	StatusCode string  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg,optional"` // 返回状态描述
 	VideoList  []Video `json:"video_list"`          // 用户点赞视频列表
 }
 
 type CommentActionReq struct {
-	ActionType  string `form:"action_type"`           // 1-发布评论，2-删除评论
-	CommentID   string `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
+	ActionType  int32  `form:"action_type"`           // 1-发布评论，2-删除评论
+	CommentID   int64  `form:"comment_id,optional"`   // 要删除的评论id，在action_type=2的时候使用
 	CommentText string `form:"comment_text,optional"` // 用户填写的评论内容，在action_type=1的时候使用
 	Token       string `form:"token"`                 // 用户鉴权token
-	VideoID     string `form:"video_id"`              // 视频id
+	VideoID     int64  `form:"video_id"`              // 视频id
 }
 
 type CommentActionResp struct {
 	Comment    Comment `json:"comment"`              // 评论成功返回评论内容，不需要重新拉取整个列表
-	StatusCode int64   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
+	StatusCode int32   `json:"status_code,optional"` // 状态码，0-成功，其他值-失败
 	StatusMsg  string  `json:"status_msg"`           // 返回状态描述
 }
 
@@ -140,7 +139,7 @@ type Comment struct {
 
 type CommentListReq struct {
 	Token   string `form:"token,optional"` // 用户鉴权token
-	VideoID string `form:"video_id"`       // 视频id
+	VideoID int64  `form:"video_id"`       // 视频id
 }
 
 type CommentListResp struct {
@@ -156,7 +155,7 @@ type RelationActionReq struct {
 }
 
 type RelationActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
@@ -207,13 +206,14 @@ type MessageActionReq struct {
 }
 
 type MessageActionResp struct {
-	StatusCode int64  `json:"status_code"`         // 状态码，0-成功，其他值-失败
+	StatusCode int32  `json:"status_code"`         // 状态码，0-成功，其他值-失败
 	StatusMsg  string `json:"status_msg,optional"` // 返回状态描述
 }
 
 type MessageChatReq struct {
 	ToUserID string `form:"to_user_id"` // 对方用户id
 	Token    string `form:"token"`      // 用户鉴权token
+	PreMsgTime string `form:"pre_msg_time"` //上次最新消息的时间（新增字段-apk更新中）
 }
 
 type MessageChatResp struct {
@@ -224,7 +224,7 @@ type MessageChatResp struct {
 
 type Message struct {
 	Content    string `json:"content"`              // 消息内容
-	CreateTime int64  `json:"create_time,optional"` // 消息发送时间 yyyy-MM-dd HH:MM:ss
+	CreateTime string  `json:"create_time,optional"` // 消息发送时间 yyyy-MM-dd HH:MM:ss
 	FromUserID int64  `json:"from_user_id"`         // 消息发送者id
 	ID         int64  `json:"id"`                   // 消息id
 	ToUserID   int64  `json:"to_user_id"`           // 消息接收者id
